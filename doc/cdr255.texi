@@ -1,0 +1,447 @@
+
+\input texinfo
+@c -*-texinfo-*-
+
+@c %**start of header
+@setfilename guile-cdr255.info
+@documentencoding UTF-8
+@settitle guile cdr255 Reference Manual
+@c %**end of header
+
+@c@include version.texi
+
+@copying
+Copyright @copyright{} 2022 Christopher Rodriguez
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A
+copy of the license is included in the section entitled ``GNU Free
+Documentation License''.
+@end copying
+
+@dircategory The Algorithmic Language Scheme
+@direntry
+* guile cdr255: (guile-cdr255).   
+@end direntry
+
+@titlepage
+@title The guile cdr255 Manual
+@author Christopher Rodriguez
+
+@page
+@vskip 0pt plus 1filll
+Edition @value{EDITION} @*
+@value{UPDATED} @*
+
+@insertcopying
+@end titlepage
+
+@contents
+
+@c *********************************************************************
+@node Top
+@top guile cdr255
+
+This document describes guile cdr255 version @value{VERSION}.
+
+@menu
+* Introduction::                Why Guile Cdr255?
+* Userlib::                     Procedures for End-User Scripting.
+
+* Concept Index::               Concepts Used, and Where.
+* Programming Index::           Functions, Variables, Etc.
+
+* Procedure Types::             Data, Calculations, and Actions.
+* GNU FDL::                     The License for this Manual.
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* Utility Scripts::             A small collection of scripts.
+
+Userlib
+
+* Environment Variables::       Interfacing with the User Environment.
+
+
+@end detailmenu
+@end menu
+
+@c *********************************************************************
+@node Introduction, Utility Scripts, Top, Top
+@chapter Introduction
+
+The purpose of this library is to collect small, useful procedures that
+I hope to use to avoid rewriting things over and over again in my day to
+day life.
+
+I began this project when I converted from writing scripts in bash to
+writing them in Guile, and it seemed like the easiest path forward for
+me.
+
+I've published this publicly in the hopes that it might be of use to
+someone at some point, though I also just wanted a convenient place to
+pull it from into my own GNU Guix Home configuration.
+
+@c *********************************************************************
+@node Utility Scripts, Userlib, Introduction, Introduction
+@section Utility Scripts
+
+I've also included a few utility scripts (for now). As the library grows
+in size, these will likely be moved to their own project, as I mainly
+want this to be a library at heart.
+
+@enumerate
+
+@item
+@command{set-gitconfig} - Apply the config specified in
+@file{$HOME/.config/gitconfig} to the user's global @file{~/.gitconfig},
+through @command{git}.
+
+@end enumerate
+
+@c *********************************************************************
+@node Userlib,  Environment Variables, Utility Scripts, Top
+@chapter Userlib
+This module is specifically supposed to collect procedures useful for
+enabling scripting by a user.
+
+The functions here all deal with environment variables, reading and
+writing files, displaying pretty-printed output, and running other
+programs.
+
+@c *********************************************************************
+@node Environment Variables, Assignment List Tools, Userlib, Userlib
+@section Environment Variables
+These procedures all deal with environment variables, which are somewhat
+of a nuisance to use in stock GNU Guile.
+
+@c *********************************************************************
+@deffn {Scheme Procedure} dereference-env @var{variable}
+@ref{ACTION}.
+
+Look up the environment variable @var{variable} in the running
+environment, and return that value as a string.
+
+@emph{Note:} The specified variable shouldn't be preceded by a sigil
+(for instance, bash uses @code{$}) that denotes it as an environment
+variable. Just include the name of the variable itself@footnote{So, to
+dereference @var{$HOME}, use "HOME" as @var{variable}.}.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(dereference-env "HOME")) @result{} "/home/user"
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} dereference-env-in-assignment-list @
+       @var{variable} @var{assignment-list}
+@deffnx {Scheme Procedure} dereference-envs-in-assignment-list @
+        @var{list-of-variables} @var{assignment-list}
+@ref{ACTION}
+
+These procedures both operate on an assignment list, and dereference at
+least one variable in all the elements (variables @emph{and} values)
+therein. The @var{list-of-variables} is expected to be a flat list of
+strings. Each returns an assignment list with all occurences of the
+specified variable(s) replaced with their values (or removed if they are
+unset in the current environment).
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-assign-list '(("Var1" "$HOME/foo")
+                           ("Var2" "$HOME/bar")))
+
+(dereference-env-in-assignment-list "HOME" test-assign-list) @result{}
+
+'(("Var1" "/home/user/foo")
+  ("Var2" "/home/user/bar"))
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} dereference-env-in-string @var{variable} @
+       @var{string-to-work-on}
+@ref{ACTION}
+
+Look up the environment variable @var{variable} (using
+@code{dereference-env}), and replace all occurences of that variable
+inside of @var{string-to-work-on}, returning the modified string.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(dereference-env-in-string
+   "HOME" "$HOME/file") @result{} /home/user/file
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} set-env-from-list @var{assignment-list}
+@ref{ACTION}
+
+Take an @var{assignment-list} and interpret it as a set of environment
+variables, setting them in the local environment.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(getenv "VARIABLEONE") @result{} ""
+(getenv "VARIABLETWO") @result{} "foo"
+
+(define test-list '(("VARIABLEONE" "foo")
+                    ("VARIABLETWO" "bar")))
+
+(set-env-from-list test-list)
+
+(getenv "VARIABLEONE") @result{} "foo"
+(getenv "VARIABLETWO") @result{} "bar"
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@node Assignment List Tools, File Tools, Environment Variables, Userlib
+@section Assignment List Tools
+These procedures all operate on assignment lists, and don't fit anywhere
+else.
+
+@c *********************************************************************
+@deffn {Scheme Procedure} assignment-string->assignment-list @
+       @var{assignment-string}
+@ref{CALCULATION}
+
+This procedure takes a string (@var{assignment-string}) that's expected
+to be:
+
+@enumerate
+@item Newline (\n) delimited.
+@item Made up of assignments done with the equals (=) sign.
+@end enumerate
+
+And converts the string into an assignment list, returning it for
+use.
+
+If two assignments occur on the same line (no newline between them),
+this @emph{will not} work. Any members that end up as invalid members
+for an assignment list are removed.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-string "A=1\nB=2 C=3\nD=4\nfoo\nbar")
+
+(assignment-string->assignment-list test-string) @result{}
+
+'(("A" "1") ("B" "2 C" "3") ("D" "4") ("foo") ("bar")) @result{}
+
+'(("A" "1") ("D" "4"))
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} clean-assignment-list @var{unclean-list}
+@ref{CALCULATION}
+
+This procedure takes an @var{unclean-list} of lists that are both valid
+and invalid members for an assignment list, and returns an assignment
+list made out of just the valid members.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-list '(("A" "1")
+                    ("foo" "bar" "baz")
+                    ("B" "2")
+                    (C 3)
+                    ("Test Var" "test")
+                    ("exporting" "true")))
+
+(clean-assignment-list test-list) @result{} '(("A" "1") ("B" "2"))
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} remove-substring-from-assignment-list @
+       @var{substring} @var{assignment-list}
+@ref{CALCULATION}
+
+This procedure takes a @var{substring} and removes it across every
+member of an @var{assignment-list} (both variable and value members,
+included). It then returns the new assignment list, with all instances
+of the @var{substring} removed.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-list '(("fooOne" "1")
+                    ("Two" "2foo")))
+
+(remove-substring-from-assignment-list "foo" test-list) @result{}
+
+'(("One" "1")
+  ("Two" "2"))
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@subsection What are Assignment Lists?
+@cindex Assignment List
+@anchor{Assignment List}
+
+Oftentimes, end-user work is simply a matter of taking something and
+associating it with something else. These kinds of Association Lists are
+popular, and Guile has support for them @xref{Association Lists, , ,
+guile}.
+
+However, they are both a little overkill and a little too general for
+using with shell-based environments. So, instead, this library defines a
+subset of alist with a few very strict limitations:
+
+@enumerate
+
+@item There can only be two members per association.
+@item Both members @emph{must} be strings.
+@item The key/car/first member is the variable member.
+@item The variable member cannot have a space in it.
+@item The variable member cannot start with "export".
+@item The value/cadr/second member is the value member.
+
+@end enumerate
+
+In short, all "Assignment Lists" referenced in this library are expected
+to be lists of lists of strings, in the form:
+
+@lisp
+(list ("Variable" "Value")
+      ("Variable" "Value")
+      @dots{})
+@end lisp
+
+@c *********************************************************************
+@node File Tools, Concept Index, Assignment List Tools, Userlib
+@section File Tools
+These procedures all work on/with/around files, in some fashion.
+
+@c *********************************************************************
+@deffn {Scheme Procedure} get-file-as-string @var{file}
+@ref{ACTION}
+
+Slurp the entirety @var{file} into memory, and return that data as a
+string.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(get-file-as-string "file.txt") @result{}
+
+"Contents of File\nAs a String"
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@node Concept Index, Programming Index, Userlib, Top
+@chapter Concept Index
+@printindex cp
+
+@c *********************************************************************
+@node Programming Index, Procedure Types, Concept Index, Top
+@chapter Programming Index
+@syncodeindex tp fn
+@syncodeindex vr fn
+@printindex fn
+
+@c *********************************************************************
+@node Procedure Types, GNU FDL, Environment Variables, Top
+@appendix Procedure Types
+
+I find the way that Eric Normand has talked about categorizing different
+procedures to be quite helpful, so I've taked to defining all the
+procedures that I write explicitly in the documentation. Here is a brief
+overview of those categories, with some links to the upstream
+information for those interested.
+
+@c *********************************************************************
+@appendixsec Data
+@cindex Datum
+@anchor{DATA}
+
+Data are @emph{inert} information. They do nothing other than
+exist. Examples include what is inside a database, the string you might
+get from a user input, and the file I've written this example in.
+
+Data are @emph{pure}, because they just @emph{are}. They don't have any
+hidden state; '5' is always going to be '5', regardless of what the
+party says.
+
+If something @emph{can} be a datum, it @emph{should} be a datum. There's
+no reason to make something simple and reliable more complicated than
+that.
+
+@c *********************************************************************
+@appendixsec Calculations
+@cindex Calculation
+@anchor{CALCULATION}
+
+But, if everything were just data, we couldn't actually do anything with
+computers other than look at them. The next step down is where
+@emph{calculations} live.
+
+These are the "pure" functions that Functional Programmers talk about:
+Referentially Transparent, no Side Effects, Same Input, Same
+Output. Calculations are @emph{pure} because of these qualities; like
+mathematical functions, they are uneffected by any outside state. If You
+feed '5' into a calculation and get back '3' today, You will get back
+'3' no matter when You feed '5' into it.
+
+If something @emph{can't} be a datum but @emph{can} be a calculation,
+then it @emph{should} be a calculation. It is much easier to maintain
+and understand code when it separates reliable, never-changing
+calculations from the stuff that might vary depending on where or when
+You run it.
+
+Eric Normand had a podcast episode dedicated to defining this idea. It
+can be found here:
+
+@url{https://ericnormand.me/podcast/what-is-a-calculation}
+
+@c *********************************************************************
+@appendixsec Actions
+@cindex Action
+@anchor{ACTION}
+
+However, Calculations can't do things we really think are useful,
+because they can't have side effects or deal with state. So, the final
+level of impurity is needed in every currently-run program, and that is
+the level of @emph{actions}.
+
+These are the "impure" functions that Functional Programmers (sometimes,
+and mistakenly) say that they don't use. They do things like: Print
+output to a screen. Send an email. Update a log. Update a value. Play
+Music. Actually receive that string from before, from the user. They are
+the stuff that Haskell uses Monads for, for instance.
+
+If something @emph{can't} be a datum, and it @emph{can't} be a
+calculation, then it has @emph{no choice} but to be an action. Ideally,
+actions should be kept as small and simple as possible: A very common
+practice is to combine data or calculations with an action, which makes
+code hard to understand, hard to maintain, and hard to reuse.
+
+Eric Normand had a podcast episode dedicated to defining this idea. It
+can be found here:
+
+@url{https://ericnormand.me/podcast/what-is-a-calculation}
+
+@c *********************************************************************
+@node GNU FDL
+@appendix GNU Free Documentation License
+@cindex license, GNU Free Documentation License
+@include fdl-1.3.texi
+
+@bye
