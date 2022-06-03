@@ -1,7 +1,7 @@
 (hall-description
   (name "cdr255")
   (prefix "guile")
-  (version "0.1.0")
+  (version "0.1.1")
   (author "Christopher Rodriguez")
   (copyright (2022))
   (synopsis "User library and utility scripts.")
