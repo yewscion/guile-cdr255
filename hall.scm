@@ -19,10 +19,19 @@
          (programs
            ((directory "scripts" ((in-file "set-gitconfig")))))
          (documentation
-           ((directory
+           ((text-file "Changelog")
+            (directory
               "doc"
-              ((texi-file "fdl-1.3") (texi-file "cdr255")))))
+              ((texi-file "cdr255") (texi-file "fdl-1.3")))
+            (text-file "LICENSE")
+            (text-file "NEWS")
+            (text-file "AUTHORS")
+            (org-file "README")
+            (symlink "ChangeLog" "Changelog")
+            (symlink "COPYING" "LICENSE")
+            (symlink "README" "README.org")))
          (infrastructure
            ((directory "m4" ((m4-file "tar-edited")))
             (scheme-file "guix")
-            (scheme-file "hall")))))
+            (scheme-file "hall")
+            (in-file "pre-inst-env")))))
