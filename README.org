@@ -1,4 +1,7 @@
 -*- mode: org; coding: utf-8; -*-
 
 #+TITLE: README for Guile Cdr255
+* The =guile cdr255= Library
 
+This is a library of useful(?) functions I have committed to maintaining over
+the years for my own work.
