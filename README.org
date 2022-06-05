@@ -1,7 +1,80 @@
--*- mode: org; coding: utf-8; -*-
+#+title: The =guile cdr255= README
+#+subtitle: An Introduction to the guile-cdr255 library.
+#+date: <2022-06-05 Sun 13:01>
+#+description:
+#+keywords:
+#+subauthor:
+#+html_doctype: html5
+#+html_container: div
+#+html_link_home:
+#+html_link_up:
+#+html_mathjax:
+#+html_equation_reference_format: \eqref{%s}
+#+html_head:
+#+html_head_extra:
+#+infojs_opt:
+#+creator: Emacs and Org Mode on Guix
+#+latex_header:
+#+texinfo_filename:
+#+texinfo_class: info
+#+texinfo_header:
+#+texinfo_post_header:
+#+texinfo_dir_category:
+#+texinfo_dir_title:
+#+texinfo_dir_desc:
+#+texinfo_printed_title:
+#+man_class:
+#+man_class_options:
+#+man_header:
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+options: author:t broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:t toc:nil todo:nil |:t
+#+options: html-preamble:nil html-scripts:nil html-style:nil
+#+options: html-link-use-abs-url:nil html-postamble:nil
+#+options: html5-fancy:nil tex:t
+#+author: Christopher Rodriguez
+#+email: yewscion@gmail.com
+#+language: en
+#+select_tags: export yup
+#+exclude_tags: noexport nope
+#+property: header-args :mkdirp yes :results output verbatim
+#+property: header-args:text :eval never
+#+property: header-args:markdown :eval never
+#+property: header-args:fundamental :eval never
+#+property: header-args:lisp :noweb yes :mkdirp yes
+#+property: header-args:scheme :noweb yes :mkdirp yes :session GUILE
+#+property: header-args:dot :cmd sfdp :mkdirp yes
+#+property: header-args:bash :dir ~ :shebang #!/usr/bin/env -S bash -i
+#+macro: lastupdate (eval (format-time-string "%F (W%V) %T %Z" nil t))
+#+macro: summary A Utility Guile Library
+#+macro: guixinfo (eval (cdr:readme-guix-instructions "guile-cdr255"))
+#+macro: srcinfo (eval (cdr:readme-src-instructions "guile-cdr255"))
+#+macro: installinfo (eval (cdr:readme-install-instructions "guile-cdr255"))
+#+macro: useinfo (eval (cdr:readme-std-usage-instructions "guile-cdr255"))
+#+macro: contribinfo (eval (cdr:readme-contrib-instructions "guile-cdr255"))
+#+macro: licenseinfo (eval (cdr:readme-license-instructions "guile-cdr255" "agpl"))
+** {{{TITLE}}}
 
-#+TITLE: README for Guile Cdr255
-* The =guile cdr255= Library
+*{{{summary}}}*
 
-This is a library of useful(?) functions I have committed to maintaining over
-the years for my own work.
+/Last Updated: {{{lastupdate}}}/
+
+# This is where the long description goes.
+Mostly just a guile library, this is a personal project to make maintaining
+multiple systems easier and the creation of new scripts easier. I've hosted it
+here mostly out of convenience for me, but if it's useful to You too, awesome!
+
+{{{installinfo}}}
+{{{useinfo}}}
+# This is where specific usage instructions go.
+{{{contribinfo}}}
+{{{licenseinfo}}}
+
+#+begin_src bash
+#+end_src
+# Local Variables:
+# mode: org
+# coding: utf-8-unix
+# End:
