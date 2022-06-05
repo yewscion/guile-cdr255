@@ -7,6 +7,28 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 ### Added
+- `README.md` file to repo.
+
+### Changed
+- `README.org` is mostly a template now, for export to `README.md`.
+
+### Removed
+- Nothing.
+
+## [0.1.1]
+### Added
+- `configure.ac` file to repo.
+- `Makefile.am` file to repo.
+- `build-aux/test-driver.scm` file to repo.
+
+### Changed
+- Nothing.
+
+### Removed
+- Nothing.
+
+## [0.1.0]
+### Added
 - Initial Project Files.
 - Integration with [guile-hall][guile-hall].
 - [Workaround][high-uid-issue] to a limitation in [GNU tar][gnu-tar].
@@ -19,6 +41,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ### Removed
 - Unneeded temporary files from git repo.
 
+[0.1.1]: https://git.sr.ht/~yewscion/guile-cdr255/refs/0.1.1
+[0.1.0]: https://git.sr.ht/~yewscion/guile-cdr255/refs/0.1.0
 [Unreleased]: https://git.sr.ht/~yewscion/guile-cdr255/log
 [guile-hall]: https://gitlab.com/a-sassmannshausen/guile-hall
 [high-uid-issue]: https://gitlab.com/a-sassmannshausen/guile-hall/-/issues/61
