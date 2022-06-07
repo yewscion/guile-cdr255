@@ -1,5 +1,5 @@
 (define-module (cdr255 userlib)
-  #:version (0 1 0)
+  #:version (0 1 1)
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 string-fun)
   #:export (assignment-string->assignment-list
