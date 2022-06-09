@@ -1,0 +1,286 @@
+(define-module (cdr255 gametools)
+  #:version (0 1 1)
+  #:use-module (ice-9 textual-ports)
+  #:use-module (ice-9 string-fun)
+  #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-19)
+  #:use-module (srfi srfi-9)
+  #:export (make-diceroll
+            diceroll-string
+            diceroll-modifier-value
+            diceroll-modifier-operation
+            diceroll-results
+            diceroll-value
+            diceroll->string))
+
+(define-record-type <diceroll>
+  (make-diceroll-internal dicestring
+                          dicelist
+                          modifier
+                          modop
+                          resultlist
+                          result)
+  diceroll?
+  (dicestring diceroll-string)
+  (dicelist diceroll-list)
+  (modifier diceroll-modifier-value)
+  (modop diceroll-modifer-operation)
+  (resultlist diceroll-results)
+  (result diceroll-value))
+
+(define (make-diceroll dicestring)
+  "Create a new diceroll record according to a dicestring.
+
+This is an ACTION.
+
+Arguments
+=========
+
+DICESTRING <string>: A string in the form XdY+Z, where X, Y, and Z are positive
+integers, and we want to roll X number of Y-sided dice and then apply a modifier
+of Z to the sum of the results. The '+' in the above example can be one of the
+following: '+' for adding the sum and the modifier,
+           '-' for subtracting the modifier from the sum,
+           '*' for multiplying the modifier and the sum,
+           '/' for dividing the sum by the modifier,
+           '%' for taking the modulo of the sum divided by the modifier.
+
+Returns
+=======
+
+A <diceroll> record initialized according to the supplied DICESTRING. It is
+immutable after creation, hence the lack of setters.
+
+
+Impurities
+==========
+Relies on an RNG."
+  (let* ((dicestring dicestring)
+         (dicelist (dicestring->dicelist dicestring))
+         (modifier (caddr dicelist))
+         (modop (dicestring-operation dicestring))
+         (resultlist (dicelist->resultlist
+                      dicelist))
+         (result (modop
+                  (reduce + 0
+                          resultlist)
+                  modifier)))
+    (make-diceroll-internal dicestring
+                            dicelist
+                            modifier
+                            modop
+                            resultlist
+                            result)))
+(define (diceroll->string diceroll)
+  "Returns all of the information for the diceroll as a string.
+
+This is a CALCULATION
+
+Arguments
+=========
+
+DICEROLL <diceroll>: A <diceroll> record.
+
+Returns
+=======
+
+A <string> representing the data inside of the DICEROLL.
+
+Impurities
+==========
+None."
+  (format #f "Rolled ~a: ~:a Result: ~:a~%"
+          (diceroll-string diceroll)
+          (diceroll-results diceroll)
+          (diceroll-value diceroll)))
+
+(define (roll dicestring)
+  "Roll a set of same-sided dice.
+
+This is an ACTION.
+
+Arguments
+=========
+DICESTRING <string>: A string in the form XdY, where X and Y are positive
+integers, and we want to roll X number of Y-sided dice.
+
+Returns
+=======
+A <string> showing both the numbers rolled and their sum.
+
+Impurities
+==========
+This is an RNG."
+  (let* ((dicelist (dicestring->dicelist dicestring))
+         (modifier (caddr dicelist))
+         (modop (dicestring-operation dicestring))
+         (resultlist (dicelist->resultlist dicelist))
+         (result (modop (reduce + 0 resultlist) modifier)))
+    (format #t "Rolls:~{ ~d~}.~%" resultlist)
+    (format #t "Modifier: ~:a.~%" modifier)
+    (format #t "Result: ~:a.~%" result)
+    result))
+
+(define (dicestring-char? char)
+                       "Is this a control character for a dicestring?
+
+This is a CALCULATION.
+
+Arguments
+=========
+CHAR <char>: The character we are evaluating.
+
+Returns
+=======
+
+A <boolean> identifying if the CHAR is a special character for a dicestring (d,
++, -, /, *, %). True if it is, false if it isn't.
+
+Impurities
+==========
+None."
+                       (cond ((memq char '(#\d #\+ #\- #\* #\/ #\%))
+                              #t)
+                             (else
+                              #f)))
+
+(define (dicestring->dicelist dicestring)
+  "Convert a dicestring into a dicelist.
+
+This is a CALCULATION.
+
+Arguments
+=========
+DICESTRING <string>: A string in the form XdY, where X and Y are positive
+integers, and we want to roll X number of Y-sided dice.
+
+
+Returns
+=======
+A <<list> of <numbers>> in the form: '(count, sides, modifier).
+
+
+Impurities
+==========
+None."
+  (let ((dicelist (map string->number
+                       (string-split dicestring dicestring-char?))))
+    (cond ((= (length dicelist) 3)
+           dicelist)
+          ((= (length dicelist) 2)
+           (append dicelist '(0)))
+          (else
+           (append '(1) dicelist '(0))))))
+
+(define (1dx-result x)
+  "Generate a random number between 1 and X, inclusive.
+
+This is an ACTION.
+
+Arguments
+=========
+X <number>: A positive integer representing the upper bound of the range.
+
+Returns
+=======
+A <number> that is a positive integer somewhere between 1 and X.
+
+Impurities
+==========
+This is an RNG."
+  (+ (random x) 1))
+
+(define (dicelist->resultlist dicelist)
+  "Return the results of 'rolling' the specified dice, according to the dicelist.
+
+This is an ACTION.
+
+Arguments
+=========
+DICELIST <<list> of <numbers>>: A 3 member list, in the form:
+'(count, sides, modifier).
+
+Returns
+=======
+A <<list> of <numbers>> that is the result of 'rolling' the DICELIST: that is,
+COUNT dice with SIDES sides each. The MODIFIER is not included.
+
+
+Impurities
+==========
+None."
+  (cond ((= (car dicelist) 0) '())
+        (else  (cons (1dx-result (cadr dicelist))
+                     (dicelist->resultlist
+                      (decrement-dicelist dicelist))))))
+
+(define (decrement-dicelist dicelist)
+  "Return the dicelist with the COUNT decreased by 1.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+DICELIST <<list> of <numbers>>: A 3 member list, in the form:
+'(count, sides, modifier).
+
+
+Returns
+=======
+
+A dicelist <<list> of <numbers>> in the form: '((- count 1), sides, modifier).
+If count is already less than 1 (that is, 0 or a negative number) it will return
+the dicelist with count set to 0.
+
+Impurities
+==========
+None."
+  (let ((count (car dicelist))
+        (sides (cadr dicelist))
+        (modifier (caddr dicelist)))
+    (cond ((< count 1)
+           (list (0 sides modifier)))
+          (else
+           (list (- count 1)
+                 sides
+                 modifier)))))
+(define (dicestring-operation dicestring)
+  "Extract the procedure represented by the modifier part of the dicestring. If
+there is no modifier, or the dice string is malformed, returns 'nil.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+DICESTRING <string>: A string in the form XdY, where X and Y are positive
+integers, and we want to roll X number of Y-sided dice.
+
+Returns
+=======
+
+A <procedure> ready to be applied to the sum of the results, and the modifier,
+of the dicestring.
+
+Impurities
+==========
+None."
+  (let* ((countless (cdr (string-split dicestring #\d)))
+         (charlist (string->list (car countless))))
+    (if (= (length charlist) 3)
+      (let ((op (cadr charlist)))
+        (cond ((eq? #\+ op)
+               +)
+              ((eq? #\- op)
+               -)
+              ((eq? #\* op)
+               *)
+              ((eq? #\/ op)
+               /)
+              ((eq? #\% op)
+               modulo)))
+      'nil)))
+
+
+
