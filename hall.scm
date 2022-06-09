@@ -15,7 +15,7 @@
   (dependencies `())
   (files (libraries
            ((directory "cdr255" ((scheme-file "userlib")))))
-         (tests ((directory "tests" ())))
+         (tests ((directory "tests" ((scheme-file "tests")))))
          (programs
            ((directory "scripts" ((in-file "set-gitconfig")))))
          (documentation
@@ -28,8 +28,7 @@
             (text-file "AUTHORS")
             (org-file "README")
             (symlink "ChangeLog" "Changelog")
-            (symlink "COPYING" "LICENSE")
-            (symlink "README" "README.org")))
+            (symlink "COPYING" "LICENSE")))
          (infrastructure
            ((directory "m4" ((m4-file "tar-edited")))
             (scheme-file "guix")

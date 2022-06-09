@@ -62,3 +62,4 @@ stamp-h[0-9]
 tmp
 /.version
 /doc/stamp-[0-9]
+/scripts/set-gitconfig
