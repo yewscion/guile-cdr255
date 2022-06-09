@@ -143,8 +143,9 @@ None."
       (= (length x) 2)
       (string? (car x))
       (string? (cadr x))
-      (not (string= (substring (car x) 0 6) "export"))
-      (not (string-index (car x) #\ ))))
+      (not (string-index (car x) #\ ))
+      (if (>= (string-length (car x)) 6)
+          (not (string= (substring (car x) 0 6) "export")))))
    unclean-list))
 (define (dereference-env-in-assignment-list variable assignment-list)
   "Dereference an environment variable across all elements of an assignment list.

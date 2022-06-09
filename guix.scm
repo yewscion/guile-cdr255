@@ -13,8 +13,12 @@
 
 (package
   (name "guile-cdr255")
-  (version "0.1.0")
-  (source (local-file "./guile-cdr255-0.1.0.tar.gz"))
+  (version "0.1.1")
+  (source (local-file (string-append "./"
+                                     name
+                                     "-"
+                                     version
+                                     ".tar.gz")))
   (build-system gnu-build-system)
   (arguments
     `(#:modules

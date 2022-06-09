@@ -36,7 +36,7 @@ SUFFIXES = .scm .go
 
 SOURCES = cdr255/userlib.scm
 
-TESTS = 
+TESTS = tests/tests.scm
 
 TEST_EXTENSIONS = .scm
 SCM_LOG_DRIVER =                                \
@@ -63,7 +63,6 @@ EXTRA_DIST += Changelog \
               README.org \
               ChangeLog \
               COPYING \
-              README \
               m4/tar-edited.m4 \
               guix.scm \
               hall.scm \
