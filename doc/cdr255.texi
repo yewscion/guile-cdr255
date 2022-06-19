@@ -346,7 +346,13 @@ string.
 @end deffn
 
 @c *********************************************************************
-@node Concept Index, Programming Index, Userlib, Top
+@node Game Tools, Concept Index, Userlib, Top
+@chapter Concept Index
+
+
+
+@c *********************************************************************
+@node Concept Index, Programming Index, Game Tools, Top
 @chapter Concept Index
 @printindex cp
 
