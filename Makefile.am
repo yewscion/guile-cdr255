@@ -52,8 +52,8 @@ AM_SCM_LOG_FLAGS = --no-auto-compile -L "$(top_srcdir)"
 
 AM_TESTS_ENVIRONMENT = abs_top_srcdir="$(abs_top_srcdir)"
 
-info_TEXINFOS = doc/cdr255.texi \
-                doc/fdl-1.3.texi
+info_TEXINFOS = doc/cdr255.texi
+
 dvi: # Don't build dvi docs
 
 EXTRA_DIST += Changelog \

@@ -14,6 +14,7 @@ AM_SILENT_RULES([yes])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
 AC_CONFIG_FILES([scripts/set-gitconfig],[chmod +x scripts/set-gitconfig])
+AC_CONFIG_FILES([doc/version.texi])
 dnl Search for 'guile' and 'guild'.  This macro defines
 dnl 'GUILE_EFFECTIVE_VERSION'.
 GUILE_PKG([3.0 2.2 2.0])

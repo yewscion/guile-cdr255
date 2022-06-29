@@ -1,0 +1,78 @@
+@appendix Procedure Types
+
+I find the way that Eric Normand has talked about categorizing different
+procedures to be quite helpful, so I've taked to defining all the
+procedures that I write explicitly in the documentation. Here is a brief
+overview of those categories, with some links to the upstream
+information for those interested.
+
+@c *********************************************************************
+@appendixsec Data
+@cindex Datum
+@anchor{DATA}
+
+Data are @emph{inert} information. They do nothing other than
+exist. Examples include what is inside a database, the string you might
+get from a user input, and the file I've written this example in.
+
+Data are @emph{pure}, because they just @emph{are}. They don't have any
+hidden state; '5' is always going to be '5', regardless of what the
+party says.
+
+If something @emph{can} be a datum, it @emph{should} be a datum. There's
+no reason to make something simple and reliable more complicated than
+that.
+
+@c *********************************************************************
+@appendixsec Calculations
+@cindex Calculation
+@anchor{CALCULATION}
+
+But, if everything were just data, we couldn't actually do anything with
+computers other than look at them. The next step down is where
+@emph{calculations} live.
+
+These are the "pure" functions that Functional Programmers talk about:
+Referentially Transparent, no Side Effects, Same Input, Same
+Output. Calculations are @emph{pure} because of these qualities; like
+mathematical functions, they are uneffected by any outside state. If You
+feed '5' into a calculation and get back '3' today, You will get back
+'3' no matter when You feed '5' into it.
+
+If something @emph{can't} be a datum but @emph{can} be a calculation,
+then it @emph{should} be a calculation. It is much easier to maintain
+and understand code when it separates reliable, never-changing
+calculations from the stuff that might vary depending on where or when
+You run it.
+
+Eric Normand had a podcast episode dedicated to defining this idea. It
+can be found here:
+
+@url{https://ericnormand.me/podcast/what-is-a-calculation}
+
+@c *********************************************************************
+@appendixsec Actions
+@cindex Action
+@anchor{ACTION}
+
+However, Calculations can't do things we really think are useful,
+because they can't have side effects or deal with state. So, the final
+level of impurity is needed in every currently-run program, and that is
+the level of @emph{actions}.
+
+These are the "impure" functions that Functional Programmers (sometimes,
+and mistakenly) say that they don't use. They do things like: Print
+output to a screen. Send an email. Update a log. Update a value. Play
+Music. Actually receive that string from before, from the user. They are
+the stuff that Haskell uses Monads for, for instance.
+
+If something @emph{can't} be a datum, and it @emph{can't} be a
+calculation, then it has @emph{no choice} but to be an action. Ideally,
+actions should be kept as small and simple as possible: A very common
+practice is to combine data or calculations with an action, which makes
+code hard to understand, hard to maintain, and hard to reuse.
+
+Eric Normand had a podcast episode dedicated to defining this idea. It
+can be found here:
+
+@url{https://ericnormand.me/podcast/what-is-a-calculation}

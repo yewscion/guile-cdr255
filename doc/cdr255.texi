@@ -8,7 +8,7 @@
 @settitle guile cdr255 Reference Manual
 @c %**end of header
 
-@c@include version.texi
+@include version.texi
 
 @copying
 Copyright @copyright{} 2022 Christopher Rodriguez
@@ -32,8 +32,6 @@ Documentation License''.
 
 @page
 @vskip 0pt plus 1filll
-Edition @value{EDITION} @*
-@value{UPDATED} @*
 
 @insertcopying
 @end titlepage
@@ -49,6 +47,7 @@ This document describes guile cdr255 version @value{VERSION}.
 @menu
 * Introduction::                Why Guile Cdr255?
 * Userlib::                     Procedures for End-User Scripting.
+* Game Tools::                   Procedures for Making/Playing Games.
 
 * Concept Index::               Concepts Used, and Where.
 * Programming Index::           Functions, Variables, Etc.
@@ -346,7 +345,109 @@ string.
 @end deffn
 
 @c *********************************************************************
-@node Concept Index, Programming Index, Userlib, Top
+@node Game Tools, Dice, Userlib, Top
+@chapter Concept Index
+This module is specifically supposed to collect procedures useful for
+making or playing games.
+
+@menu
+* Dice::     Tools for Constrained Random Number Generation.
+@end menu
+
+@c *********************************************************************
+@node Dice, Concept Index, Game Tools, Game Tools
+@section Dice
+Rolling random numbers and using the results is one of the simplest
+tools used in game design. These procedures all center around making
+'rolls' based on a random number generator, modifying them, and
+outputting the results.
+
+@c *********************************************************************
+@subsection What is a diceroll?
+@cindex diceroll
+@anchor{diceroll}
+
+Before we can make any rolls, we need to define what exactly a
+@code{diceroll} is. In terms of this library, a @code{diceroll} record
+is defined as follows:
+
+@enumerate
+
+@item
+A @var{diceroll} is a SRFI-9 record that has 6 fields and no setters for
+those fields after creation.
+@item
+The 6 fields in a @var{diceroll} record are @var{dicestring},
+@var{dicelist}, @var{modifier}, @var{modop}, @var{resultlist}, and
+@var{result}.
+@item
+A @var{diceroll} can be expressed as a string in the form "XdYZA", where
+X, Y, and A are integers and Z is an arithmetic operation in the set
+@{addition, subtraction, multiplication, division, modulus@}, or
+@{+,-,*,/,%@}. X is the number of "dice" to roll. Y is the number of
+sides per die. And A is a constant for the right side of the
+operation. The "ZA" portion can be left off, in which case the dice are
+rolled as is.
+@item
+The abovementioned string is the @var{dicestring} for the @var{diceroll}.
+@item
+The @var{dicestring} is parsed during creation into a list in the form
+@code{'(count, sides, modifier)}. This list is the @var{dicelist} for
+the @var{diceroll}.
+@item
+The @var{modifier} is pulled from the @var{dicelist} and stored
+separately, as it is not random and therefore can be preserved as is.
+@item
+The @var{modop} is calculated by interpreting the character used and
+looking up the equivalent operation, which is stored as a procedure.
+@item
+The @var{resultlist} is calculated during the creation of the
+@var{diceroll} by "rolling" dice according to the @var{dicelist}
+mentioned above.
+@item
+The @var{result} is calclulated by taking the sum of all of the members
+of the @var{resultlist}, and the @var{modifier}, and applying the
+@var{modop} to them.
+@item
+The above six fields are referenced in the resulting @var{diceroll}
+using the appropriate accessor functions in the table below.
+@end enumerate
+
+The following table assumes that a @var{diceroll} named @samp{foo}
+exists. This outlines the functions used to access the fields defined
+above. An Example is included below the definition, assuming @samp{foo}
+was created using the @var{dicestring} @samp{"1d4+1"}, with the roll of the
+single die resulting in a @samp{3}.
+
+@ftable @code
+@item (diceroll-string @samp{foo})
+Return the @var{dicestring} of @samp{foo}.
+
+@emph{Example: @samp{"1d4+1"}}
+@item (diceroll-list @samp{foo})
+Return the @var{dicelist} of @samp{foo}.
+
+@emph{Example: @samp{1, 4, 1}}
+@item (diceroll-modifier-value @samp{foo})
+Return the @var{modifier} of @samp{foo}.
+
+@emph{Example: @samp{1}}
+@item (diceroll-modifier-operation @samp{foo})
+Return the @var{modop} of @samp{foo}.
+
+@emph{Example: @samp{#<procedure +>}}
+@item (diceroll-results @samp{foo})
+Return the @var{resultlist} of @samp{foo}.
+
+@emph{Example: @samp{'(3)}}
+@item (diceroll-value @samp{foo})
+Return the @var{result} of @samp{foo}.
+
+@emph{Example: @samp{4}}
+@end ftable
+
+@c *********************************************************************
+@node Concept Index, Programming Index, Game Tools, Top
 @chapter Concept Index
 @printindex cp
 
@@ -359,89 +460,14 @@ string.
 
 @c *********************************************************************
 @node Procedure Types, GNU FDL, Environment Variables, Top
-@appendix Procedure Types
-
-I find the way that Eric Normand has talked about categorizing different
-procedures to be quite helpful, so I've taked to defining all the
-procedures that I write explicitly in the documentation. Here is a brief
-overview of those categories, with some links to the upstream
-information for those interested.
+@cindex Procedure Types
+@include procedure-types.texi
 
 @c *********************************************************************
-@appendixsec Data
-@cindex Datum
-@anchor{DATA}
-
-Data are @emph{inert} information. They do nothing other than
-exist. Examples include what is inside a database, the string you might
-get from a user input, and the file I've written this example in.
-
-Data are @emph{pure}, because they just @emph{are}. They don't have any
-hidden state; '5' is always going to be '5', regardless of what the
-party says.
-
-If something @emph{can} be a datum, it @emph{should} be a datum. There's
-no reason to make something simple and reliable more complicated than
-that.
-
-@c *********************************************************************
-@appendixsec Calculations
-@cindex Calculation
-@anchor{CALCULATION}
-
-But, if everything were just data, we couldn't actually do anything with
-computers other than look at them. The next step down is where
-@emph{calculations} live.
-
-These are the "pure" functions that Functional Programmers talk about:
-Referentially Transparent, no Side Effects, Same Input, Same
-Output. Calculations are @emph{pure} because of these qualities; like
-mathematical functions, they are uneffected by any outside state. If You
-feed '5' into a calculation and get back '3' today, You will get back
-'3' no matter when You feed '5' into it.
-
-If something @emph{can't} be a datum but @emph{can} be a calculation,
-then it @emph{should} be a calculation. It is much easier to maintain
-and understand code when it separates reliable, never-changing
-calculations from the stuff that might vary depending on where or when
-You run it.
-
-Eric Normand had a podcast episode dedicated to defining this idea. It
-can be found here:
-
-@url{https://ericnormand.me/podcast/what-is-a-calculation}
-
-@c *********************************************************************
-@appendixsec Actions
-@cindex Action
-@anchor{ACTION}
-
-However, Calculations can't do things we really think are useful,
-because they can't have side effects or deal with state. So, the final
-level of impurity is needed in every currently-run program, and that is
-the level of @emph{actions}.
-
-These are the "impure" functions that Functional Programmers (sometimes,
-and mistakenly) say that they don't use. They do things like: Print
-output to a screen. Send an email. Update a log. Update a value. Play
-Music. Actually receive that string from before, from the user. They are
-the stuff that Haskell uses Monads for, for instance.
-
-If something @emph{can't} be a datum, and it @emph{can't} be a
-calculation, then it has @emph{no choice} but to be an action. Ideally,
-actions should be kept as small and simple as possible: A very common
-practice is to combine data or calculations with an action, which makes
-code hard to understand, hard to maintain, and hard to reuse.
-
-Eric Normand had a podcast episode dedicated to defining this idea. It
-can be found here:
-
-@url{https://ericnormand.me/podcast/what-is-a-calculation}
-
-@c *********************************************************************
-@node GNU FDL
+@node GNU FDL, , Procedure Types, Top
 @appendix GNU Free Documentation License
 @cindex license, GNU Free Documentation License
 @include fdl-1.3.texi
 
+@c *********************************************************************
 @bye
