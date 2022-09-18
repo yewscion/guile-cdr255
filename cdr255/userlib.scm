@@ -9,6 +9,7 @@
             dereference-env-in-string
             dereference-envs-in-assignment-list
             get-file-as-string
+            dump-string-to-file
             remove-substring-from-assignment-list
             set-env-from-list))
 (define (dereference-env variable)
@@ -232,3 +233,25 @@ Depends on the state of the environment."
           (dereference-env-in-assignment-list
            (car list-of-variables)
            assignment-list)))))
+(define (dump-string-to-file file string)
+"Dump a STRING to a specific FILE.
+
+This is an ACTION.
+
+Arguments
+=========
+FILE <string>: The path and name of the file to save the string to.
+STRING <string>: The (intended) contents of the file.
+
+Returns
+=======
+Unspecified.
+
+
+Impurities
+==========
+Write to a file on disk."
+  (call-with-output-file file
+    (lambda (port)
+      (put-string port
+                  string))))
