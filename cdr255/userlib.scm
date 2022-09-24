@@ -10,8 +10,11 @@
             dereference-envs-in-assignment-list
             get-file-as-string
             dump-string-to-file
+            replace-regexp-in-string
+            remove-regexp-from-string
             remove-substring-from-assignment-list
-            set-env-from-list))
+            set-env-from-list
+            %regexp-c-multiline-comment))
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
 
@@ -255,3 +258,52 @@ Write to a file on disk."
     (lambda (port)
       (put-string port
                   string))))
+(define (replace-regexp-in-string regexp replacement original-string)
+  "Replace matches of REGEXP with REPLACEMENT in ORIGINAL-STRING.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+REGEXP<string>: A POSIX-extended regular expression string, escaped for guile
+scheme.
+
+REPLACEMENT<string>: A literal replacement for matches to REGEXP; will appear
+in the result verbatim.
+
+ORIGINAL-STRING<string>: The string before any modification.
+
+Returns
+=======
+A <string> representing ORIGINAL-STRING with all matches of REGEXP replaced
+by REPLACEMENT.
+
+Impurities
+==========
+None."
+  (regexp-substitute/global #f regexp original-string 'pre replacement
+'post))
+(define (remove-regexp-from-string regexp original-string)
+  "Remove all matches of REGEXP from the ORIGINAL-STRING.
+
+This is a CALCULATION.
+
+Arguments
+=========
+REGEXP<string>: A POSIX-extended regular expression string, escaped for guile
+scheme.
+
+ORIGINAL-STRING<string>: The string before any modification.
+
+Returns
+=======
+A <string> representing ORIGINAL-STRING with all matches of REGEXP removed.
+
+Impurities
+==========
+None."
+  (replace-regexp-in-string regexp "" original-string))
+; This is a POSIX-Extended Regular Expression that matches C-style multiline
+; comments.
+(define %regexp-c-multiline-comment "/\\*\\*(\n|([^*](.|\n)|.[^/]))+\\*/")
