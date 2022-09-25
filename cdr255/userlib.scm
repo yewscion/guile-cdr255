@@ -3,19 +3,22 @@
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 string-fun)
   #:use-module (ice-9 regex)
-  #:export (assignment-string->assignment-list
+  #:export (+regexp-c-multiline-comment+
+            add-section-to-filename
             clean-assignment-list
             dereference-env
             dereference-env-in-assignment-list
             dereference-env-in-string
             dereference-envs-in-assignment-list
-            get-file-as-string
             dump-string-to-file
-            replace-regexp-in-string
+            find-file-extension
+            get-file-as-string
+            remove-c-multiline-comments-from-string
             remove-regexp-from-string
             remove-substring-from-assignment-list
+            replace-regexp-in-string
             set-env-from-list
-            +regexp-c-multiline-comment+))
+            assignment-string->assignment-list))
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
 
