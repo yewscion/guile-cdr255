@@ -3,8 +3,8 @@
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 string-fun)
   #:use-module (ice-9 regex)
-  #:export (+regexp-c-multiline-comment+
-            add-section-to-filename
+  #:export (add-section-to-filename
+            apply-recursive-regex-replacement
             clean-assignment-list
             dereference-env
             dereference-env-in-assignment-list
@@ -307,11 +307,43 @@ Impurities
 ==========
 None."
   (replace-regexp-in-string regexp "" original-string))
-(define (remove-c-multiline-comments-from-string original-string)
-"Remove all C-Style Multiline Comments from ORIGINAL-STRING.
+(define (apply-recursive-regex-replacement original-string
+                                           replacement-alist)
+"Apply recursive edits to ORIGINAL STRING as defined by REPLACEMENT-ALIST.
 
-This is a CALCULATION, as +regexp-c-multiline-comment+ is marked as a
-constant.
+This is a CALCULATION.
+
+Arguments
+=========
+ORIGINAL-STRING<string>: The string before any modification.
+
+REPLACEMENT-ALIST<<alist> of <strings>>: An association list that pairs a
+                                         POSIX-extended regular expression
+                                         string with what it should be
+                                         replaced by, in the order that the
+                                         replacements should be made.
+
+Returns
+=======
+A <string> representing ORIGINAL-STRING after all of the replacements have
+been applied.
+
+Impurities
+==========
+None."
+  (cond ((= (length replacement-alist) 0)
+         original-string)
+        (else
+         (let ((current (car replacement-alist)))
+           (apply-recursive-regex-replacement
+            (replace-regexp-in-string (car current)
+                                      (cadr current)
+                                      original-string)
+            (cdr replacement-alist))))))
+(define (remove-c-multiline-comments-from-string original-string)
+  "Remove all C-Style Multiline Comments from ORIGINAL-STRING.
+
+This is a CALCULATION.
 
 Arguments
 =========
@@ -326,7 +358,16 @@ Removed.
 Impurities
 ==========
 None."
-(remove-regexp-from-string +regexp-c-multiline-comment+ original-string))
+  (let ((replacement-alist '(("\n" "⍝")
+                             ("/\\*\\*" "")
+                             ("⍝ +\\*[^⍝]+" "")
+                             (" +\\*⍝" "⍝")
+                             (" *⍝ +⍝" "⍝")
+                             (" *⍝+" "⍝")
+                             ("⍝+" "\n"))))
+        (apply-recursive-regex-replacement original-string
+                                           replacement-alist)))
+
 (define (find-file-extension filename)
 "Isolate the file extension in FILENAME.
 
@@ -381,7 +422,3 @@ None."
                  section
                  (if extension
                      extension))))
-;; A POSIX-Extended Regular Expression that matches C-style multiline
-;; comments
-(define +regexp-c-multiline-comment+
-  "/\\*\\*(\n|([^*](.|\n)|.[^/]))+\\*/")
