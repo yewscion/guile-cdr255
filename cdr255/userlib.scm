@@ -2,6 +2,7 @@
   #:version (0 1 1)
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 string-fun)
+  #:use-module (ice-9 regex)
   #:export (assignment-string->assignment-list
             clean-assignment-list
             dereference-env
@@ -14,7 +15,7 @@
             remove-regexp-from-string
             remove-substring-from-assignment-list
             set-env-from-list
-            %regexp-c-multiline-comment))
+            +regexp-c-multiline-comment+))
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
 
@@ -37,7 +38,6 @@ Depends on the state of the environment."
            ".")
           (else
            value))))
-
 (define (dereference-env-in-string variable string-to-work-on)
   "Take a string and an environment variable, and replace the environment
 variable with the value in the current environment.
@@ -304,6 +304,81 @@ Impurities
 ==========
 None."
   (replace-regexp-in-string regexp "" original-string))
-; This is a POSIX-Extended Regular Expression that matches C-style multiline
-; comments.
-(define %regexp-c-multiline-comment "/\\*\\*(\n|([^*](.|\n)|.[^/]))+\\*/")
+(define (remove-c-multiline-comments-from-string original-string)
+"Remove all C-Style Multiline Comments from ORIGINAL-STRING.
+
+This is a CALCULATION, as +regexp-c-multiline-comment+ is marked as a
+constant.
+
+Arguments
+=========
+ORIGINAL-STRING<string>: The string before any modification.
+
+Returns
+=======
+
+A <string> representing ORIGINAL-STRING with all C-Style Multiline Comments
+Removed.
+
+Impurities
+==========
+None."
+(remove-regexp-from-string +regexp-c-multiline-comment+ original-string))
+(define (find-file-extension filename)
+"Isolate the file extension in FILENAME.
+
+This is a CALCULATION.
+
+Arguments
+=========
+FILENAME<string>: The filename/path for which to find an extension.
+
+Returns
+=======
+A <string> representing the file extension (with dot) present in
+FILENAME. #false if no extension is found.
+
+Impurities
+==========
+None."
+(let ((index (string-rindex filename #\.)))
+  (if index
+      (string-drop filename index)
+      index)))
+(define (add-section-to-filename section filename)
+"Add SECTION to FILENAME, before the extension (if it exists).
+
+This is a CALCULATION.
+
+Arguments
+=========
+SECTION<string>: The section to add before the extesion of the filename.
+FILENAME<string>: The original filename to add the extension to.
+
+Returns
+=======
+
+A <string> representing FILENAME with SECTION added before the
+extension. Assumes a dot delimited filename.
+
+Impurities
+==========
+None."
+(let ((extension (find-file-extension (basename filename)))
+      (directory (if (string= (dirname filename) ".")
+                     ""
+                     (string-append
+                      (dirname filename)
+                      "/"))))
+  (string-append directory
+                 (if extension
+                     (basename filename extension)
+                     (basename filename))
+                 "."
+                 section
+                 (if extension
+                     extension))))
+;; A POSIX-Extended Regular Expression that matches C-style multiline
+;; comments
+(define +regexp-c-multiline-comment+
+  "/\\*\\*(\n|([^*](.|\n)|.[^/]))+\\*/")
