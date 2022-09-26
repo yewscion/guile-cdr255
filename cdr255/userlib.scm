@@ -4,7 +4,7 @@
   #:use-module (ice-9 string-fun)
   #:use-module (ice-9 regex)
   #:export (add-section-to-filename
-            apply-recursive-regex-replacement
+            apply-recursive-regexp-replacement
             clean-assignment-list
             dereference-env
             dereference-env-in-assignment-list
@@ -240,7 +240,7 @@ Depends on the state of the environment."
            (car list-of-variables)
            assignment-list)))))
 (define (dump-string-to-file file string)
-"Dump a STRING to a specific FILE.
+  "Dump a STRING to a specific FILE.
 
 This is an ACTION.
 
@@ -286,7 +286,7 @@ Impurities
 ==========
 None."
   (regexp-substitute/global #f regexp original-string 'pre replacement
-'post))
+                            'post))
 (define (remove-regexp-from-string regexp original-string)
   "Remove all matches of REGEXP from the ORIGINAL-STRING.
 
@@ -307,9 +307,9 @@ Impurities
 ==========
 None."
   (replace-regexp-in-string regexp "" original-string))
-(define (apply-recursive-regex-replacement original-string
-                                           replacement-alist)
-"Apply recursive edits to ORIGINAL STRING as defined by REPLACEMENT-ALIST.
+(define (apply-recursive-regexp-replacement original-string
+                                            replacement-alist)
+  "Apply recursive edits to ORIGINAL STRING as defined by REPLACEMENT-ALIST.
 
 This is a CALCULATION.
 
@@ -335,7 +335,7 @@ None."
          original-string)
         (else
          (let ((current (car replacement-alist)))
-           (apply-recursive-regex-replacement
+           (apply-recursive-regexp-replacement
             (replace-regexp-in-string (car current)
                                       (cadr current)
                                       original-string)
@@ -365,11 +365,11 @@ None."
                              (" *⍝ +⍝" "⍝")
                              (" *⍝+" "⍝")
                              ("⍝+" "\n"))))
-        (apply-recursive-regex-replacement original-string
-                                           replacement-alist)))
+    (apply-recursive-regexp-replacement original-string
+                                        replacement-alist)))
 
 (define (find-file-extension filename)
-"Isolate the file extension in FILENAME.
+  "Isolate the file extension in FILENAME.
 
 This is a CALCULATION.
 
@@ -385,12 +385,12 @@ FILENAME. #false if no extension is found.
 Impurities
 ==========
 None."
-(let ((index (string-rindex filename #\.)))
-  (if index
-      (string-drop filename index)
-      index)))
+  (let ((index (string-rindex filename #\.)))
+    (if index
+        (string-drop filename index)
+        index)))
 (define (add-section-to-filename section filename)
-"Add SECTION to FILENAME, before the extension (if it exists).
+  "Add SECTION to FILENAME, before the extension (if it exists).
 
 This is a CALCULATION.
 
@@ -408,17 +408,17 @@ extension. Assumes a dot delimited filename.
 Impurities
 ==========
 None."
-(let ((extension (find-file-extension (basename filename)))
-      (directory (if (string= (dirname filename) ".")
-                     ""
-                     (string-append
-                      (dirname filename)
-                      "/"))))
-  (string-append directory
-                 (if extension
-                     (basename filename extension)
-                     (basename filename))
-                 "."
-                 section
-                 (if extension
-                     extension))))
+  (let ((extension (find-file-extension (basename filename)))
+        (directory (if (string= (dirname filename) ".")
+                       ""
+                       (string-append
+                        (dirname filename)
+                        "/"))))
+    (string-append directory
+                   (if extension
+                       (basename filename extension)
+                       (basename filename))
+                   "."
+                   section
+                   (if extension
+                       extension))))

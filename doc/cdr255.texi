@@ -47,7 +47,7 @@ This document describes guile cdr255 version @value{VERSION}.
 @menu
 * Introduction::                Why Guile Cdr255?
 * Userlib::                     Procedures for End-User Scripting.
-* Game Tools::                   Procedures for Making/Playing Games.
+* Game Tools::                  Procedures for Making/Playing Games.
 
 * Concept Index::               Concepts Used, and Where.
 * Programming Index::           Functions, Variables, Etc.
@@ -65,6 +65,13 @@ Introduction
 Userlib
 
 * Environment Variables::       Interfacing with the User Environment.
+* Assignment List Tools::       Assignment Lists and Relevant Procedures.
+* File Tools::                  Tools to Interface with Files and Filenames.
+* Regular Expressions::         Using Pattern Matching for Text Processing.
+
+Game Tools
+
+* Dice::                        Emulating Physical RNG
 
 
 @end detailmenu
@@ -109,27 +116,27 @@ through @command{git}.
 This module is specifically supposed to collect procedures useful for
 enabling scripting by a user.
 
-The functions here all deal with environment variables, reading and
+The functions here all deal with environment codeiables, reading and
 writing files, displaying pretty-printed output, and running other
 programs.
 
 @c *********************************************************************
 @node Environment Variables, Assignment List Tools, Userlib, Userlib
 @section Environment Variables
-These procedures all deal with environment variables, which are somewhat
+These procedures all deal with environment codeiables, which are somewhat
 of a nuisance to use in stock GNU Guile.
 
 @c *********************************************************************
-@deffn {Scheme Procedure} dereference-env @var{variable}
+@deffn {Scheme Procedure} dereference-env @code{codeiable}
 @ref{ACTION}.
 
-Look up the environment variable @var{variable} in the running
+Look up the environment codeiable @code{codeiable} in the running
 environment, and return that value as a string.
 
-@emph{Note:} The specified variable shouldn't be preceded by a sigil
+@emph{Note:} The specified codeiable shouldn't be preceded by a sigil
 (for instance, bash uses @code{$}) that denotes it as an environment
-variable. Just include the name of the variable itself@footnote{So, to
-dereference @var{$HOME}, use "HOME" as @var{variable}.}.
+codeiable. Just include the name of the codeiable itself@footnote{So, to
+dereference @code{$HOME}, use "HOME" as @code{codeiable}.}.
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -140,16 +147,16 @@ dereference @var{$HOME}, use "HOME" as @var{variable}.}.
 
 @c *********************************************************************
 @deffn {Scheme Procedure} dereference-env-in-assignment-list @
-       @var{variable} @var{assignment-list}
+       @code{codeiable} @code{assignment-list}
 @deffnx {Scheme Procedure} dereference-envs-in-assignment-list @
-        @var{list-of-variables} @var{assignment-list}
+        @code{list-of-codeiables} @code{assignment-list}
 @ref{ACTION}
 
 These procedures both operate on an assignment list, and dereference at
-least one variable in all the elements (variables @emph{and} values)
-therein. The @var{list-of-variables} is expected to be a flat list of
+least one codeiable in all the elements (codeiables @emph{and} values)
+therein. The @code{list-of-codeiables} is expected to be a flat list of
 strings. Each returns an assignment list with all occurences of the
-specified variable(s) replaced with their values (or removed if they are
+specified codeiable(s) replaced with their values (or removed if they are
 unset in the current environment).
 
 @lisp
@@ -166,13 +173,13 @@ unset in the current environment).
 @end deffn
 
 @c *********************************************************************
-@deffn {Scheme Procedure} dereference-env-in-string @var{variable} @
-       @var{string-to-work-on}
+@deffn {Scheme Procedure} dereference-env-in-string @code{codeiable} @
+       @code{string-to-work-on}
 @ref{ACTION}
 
-Look up the environment variable @var{variable} (using
-@code{dereference-env}), and replace all occurences of that variable
-inside of @var{string-to-work-on}, returning the modified string.
+Look up the environment codeiable @code{codeiable} (using
+@code{dereference-env}), and replace all occurences of that codeiable
+inside of @code{string-to-work-on}, returning the modified string.
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -183,11 +190,11 @@ inside of @var{string-to-work-on}, returning the modified string.
 @end deffn
 
 @c *********************************************************************
-@deffn {Scheme Procedure} set-env-from-list @var{assignment-list}
+@deffn {Scheme Procedure} set-env-from-list @code{assignment-list}
 @ref{ACTION}
 
-Take an @var{assignment-list} and interpret it as a set of environment
-variables, setting them in the local environment.
+Take an @code{assignment-list} and interpret it as a set of environment
+codeiables, setting them in the local environment.
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -213,10 +220,10 @@ else.
 
 @c *********************************************************************
 @deffn {Scheme Procedure} assignment-string->assignment-list @
-       @var{assignment-string}
+       @code{assignment-string}
 @ref{CALCULATION}
 
-This procedure takes a string (@var{assignment-string}) that's expected
+This procedure takes a string (@code{assignment-string}) that's expected
 to be:
 
 @enumerate
@@ -245,10 +252,10 @@ for an assignment list are removed.
 @end deffn
 
 @c *********************************************************************
-@deffn {Scheme Procedure} clean-assignment-list @var{unclean-list}
+@deffn {Scheme Procedure} clean-assignment-list @code{unclean-list}
 @ref{CALCULATION}
 
-This procedure takes an @var{unclean-list} of lists that are both valid
+This procedure takes an @code{unclean-list} of lists that are both valid
 and invalid members for an assignment list, and returns an assignment
 list made out of just the valid members.
 
@@ -268,13 +275,13 @@ list made out of just the valid members.
 
 @c *********************************************************************
 @deffn {Scheme Procedure} remove-substring-from-assignment-list @
-       @var{substring} @var{assignment-list}
+       @code{substring} @code{assignment-list}
 @ref{CALCULATION}
 
-This procedure takes a @var{substring} and removes it across every
-member of an @var{assignment-list} (both variable and value members,
+This procedure takes a @code{substring} and removes it across every
+member of an @code{assignment-list} (both codeiable and value members,
 included). It then returns the new assignment list, with all instances
-of the @var{substring} removed.
+of the @code{substring} removed.
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -307,9 +314,9 @@ subset of alist with a few very strict limitations:
 
 @item There can only be two members per association.
 @item Both members @emph{must} be strings.
-@item The key/car/first member is the variable member.
-@item The variable member cannot have a space in it.
-@item The variable member cannot start with "export".
+@item The key/car/first member is the codeiable member.
+@item The codeiable member cannot have a space in it.
+@item The codeiable member cannot start with "export".
 @item The value/cadr/second member is the value member.
 
 @end enumerate
@@ -324,15 +331,15 @@ to be lists of lists of strings, in the form:
 @end lisp
 
 @c *********************************************************************
-@node File Tools, Concept Index, Assignment List Tools, Userlib
+@node File Tools, Regular Expressions, Assignment List Tools, Userlib
 @section File Tools
 These procedures all work on/with/around files, in some fashion.
 
 @c *********************************************************************
-@deffn {Scheme Procedure} get-file-as-string @var{file}
+@deffn {Scheme Procedure} get-file-as-string @code{file}
 @ref{ACTION}
 
-Slurp the entirety @var{file} into memory, and return that data as a
+Slurp the entirety @code{file} into memory, and return that data as a
 string.
 
 @lisp
@@ -345,8 +352,220 @@ string.
 @end deffn
 
 @c *********************************************************************
+@deffn {Scheme Procedure} dump-string-to-file @code{file} @code{string}
+@ref{ACTION}
+
+Dump @code{string} into @code{file}, overwriting any content already
+stored there.
+@lisp
+(use-modules (cdr255 userlib))
+
+(dump-string-to-file "file.txt" "Testing!") @result{}
+
+"Testing!"
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} find-file-extension @code{filename}
+@ref{CALCULATION}
+
+Extract the file extension from @code{filename} if it exists. Return
+@code{#f} otherwise.
+
+This include the '.' separator in the match and result, allowing it to
+be appended to anything to create a filename with extension.
+@lisp
+(use-modules (cdr255 userlib))
+
+(find-file-extension "file.txt") @result{}
+
+".txt"
+@end lisp
+@end deffn
+
+@c *********************************************************************
+@deffn {Scheme Procedure} add-section-to-filename @code{section}
+@code{filename}
+@ref{ACTION}
+
+Insert @code{section} at the end of @code{filename} (but before the file
+extension, if it exists).
+
+Assumes a dot-delimited filename, like @samp{foo.bar.baz.txt}.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(add-section-to-filename "foo" "testing.txt" @result{}
+
+"testing.foo.txt"
+@end lisp
+@end deffn
+@c *********************************************************************
+@node Regular Expressions, Game Tools, File Tools, Userlib
+@section Regular Expressions
+These procedures are all meant to make modifying strings using
+POSIX-Extended Regular Expressions (@acronym{ERE}) easier.
+
+
+@c *********************************************************************
+@deffn {Scheme Procedure} replace-regexp-in-string @code{regexp}
+@code{replacement} @code{original-string}
+@ref{CALCULATION}
+
+Replace all matches of @code{regexp} with @code{replacement} in
+@code{original-string}.
+
+This is a greedy match; It will match the largest possible match first,
+and so needs to account for negatives manually. There is no lazy
+matching in @acronym{ERE}.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(replace-regexp-in-string " +" " " "Hello       World     !") @result{}
+
+"Hello World !"
+@end lisp
+@end deffn
+@c *********************************************************************
+@deffn {Scheme Procedure} remove-regexp-from-string @code{regexp}
+@code{original-string}
+@ref{CALCULATION}
+
+Remove all matches of @code{regexp} from the @code{original-string}.
+
+This is a greedy match; It will match the largest possible match first,
+and so needs to account for negatives manually. There is no lazy
+matching in @acronym{ERE}.
+
+This is a convenience procedure more than anything else, as removing a
+regexp's matches from a string is a common operation.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(remove-regexp-from-string " +" "Hello       World     !") @result{}
+
+"HelloWorld!"
+@end lisp
+@end deffn
+@c *********************************************************************
+@deffn {Scheme Procedure} apply-recursive-regexp-replacement
+@code{original-string} @code{replacement-alist}
+@ref{CALCULATION}
+
+Apply recursive edits to @code{original-string} as defined by
+@code{replacement-alist}.
+
+The @code{replacement-alist} is expected to be a list of pairs, with
+@code{(car pair)} being a valid @acronym{ERE} string, and @code{(cadr
+pair)} being the intended replacement for all matches. As an example:
+
+@lisp
+(define example-replacement-alist '((" +" " ")
+                                    (" " "-")))
+(apply-recursive-regexp-replacement "Hello       World     !"
+                                    example-replacement-alist) @result{}
+"Hello-World-!"
+@end lisp
+
+First, @code{apply-recursive-regexp-replacement} will replace all
+matches to " +" (that is, a sequence of one or more space characters)
+with " " (a single space character). This leads us to "Hello World
+!". Next, @code{apply-recursive-regexp-replacement} will replace all
+matches to " " (a single space character) with "-" (a single hypen
+character), which gives us the result.
+
+This is meant to help eliminate some of the complexity required by
+@acronym{ERE}; Since matches are not lazy, what would be a simple
+@acronym{PCRE} expression can turn into a multi-line affair in
+@acronym{ERE} if there is any kind of nesting/multiple lines/etc
+involved. Instead, we can use incremental and recursive steps to achieve
+a complex edit, which makes each individual regexp simpler… at the
+expense of making the overall procedure call much less efficient, as we
+are now compiling multiple regexps under the hood.
+
+In short: If You can get away with a single regexp instead of this
+function, it's likely better to do so. But if not, this function allows
+a way around stuff like
+@code{"([^H]|H[^T]|HT[^T]|HTT[^P]|HTTP[^/]|HTTP/[^1]|HTTP/1[^.]|HTTP/1\\.[^1])*HTTP/1\\.1"}
+to replace only up to the next occurence of "HTTP/1.1". This can be done
+here like so:
+
+@lisp
+(define test-string "TEST 127.0.0.1 GET /test.php HTTP/1.1\" 404 525
+\"-\" \"Mozilla/5.0 (Windows NT HTTP/1.1 TEST")
+
+;;; Really long ERE, but only one regexp compile
+(regexp-substitute #f
+                   (string-match
+                        "([^H]|H[^T]|HT[^T]|HTT[^P]|HTTP[^/]|HTTP/[^1]|HTTP/1[^.]|HTTP/1\\.[^1])*HTTP/1\\.1"
+                        test-string)
+                   'pre
+                   " "
+                   'post) @result{}
+" \" 404 525\n\"-\" \"Mozilla/5.0 (Windows NT HTTP/1.1 TEST"
+
+;;; Using this function instead: Much easier to understand and debug,
+;;; but involves 3 regexp compiles instead to get the same result.
+(apply-recursive-regex-replacement
+        test-string
+        '(("Windows NT HTTP/1\\.1" "aaaaaa")
+          (".*HTTP/1\\.1" " ")
+          ("aaaaaa" "Windows NT HTTP/1.1"))) @result{}
+" \" 404 525\n\"-\" \"Mozilla/5.0 (Windows NT HTTP/1.1 TEST"
+@end lisp
+
+Note that this also allows for global replacements, instead of just
+singular ones: the longer example above will still produce the wrong
+result if applied globally, due to the character set that's matched (it
+will replace the correct match, which is what we want, but then also
+replace the second match, which is the same as if we had just matched
+".*HTTP/1.1" in the first place). Whereas the shorter one, due to
+applying multiple replacements, can handle global replacements so long
+as the data is predictable.
+@end deffn
+@c *********************************************************************
+@deffn {Scheme Procedure} remove-c-multiline-comments-from-string
+@code{original-string}
+@ref{CALCULATION}
+
+Remove all C-style multiline comments from @code{original-string}.
+
+Such a comment looks like this:
+
+@example
+/** This
+  * Is
+  * a
+  * Comment.
+  */
+@end example
+
+They are used in C, C++, Java, and more. They are also the vector for
+Javadoc and Doxygen in-file documentation. This procedure strips them
+from the code, allowing a tangled version of the code to be referenced
+or compiled.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-string "test /** This
+  * Is
+  * a
+  * Comment.
+  */ successful")
+(remove-c-multiline-comments-from-string test-string) @result{}
+
+"test  successful"
+@end lisp
+@end deffn
+
+@c *********************************************************************
 @node Game Tools, Dice, Userlib, Top
-@chapter Concept Index
+@chapter Game Tools
 This module is specifically supposed to collect procedures useful for
 making or playing games.
 
@@ -374,14 +593,14 @@ is defined as follows:
 @enumerate
 
 @item
-A @var{diceroll} is a SRFI-9 record that has 6 fields and no setters for
+A @code{diceroll} is a SRFI-9 record that has 6 fields and no setters for
 those fields after creation.
 @item
-The 6 fields in a @var{diceroll} record are @var{dicestring},
-@var{dicelist}, @var{modifier}, @var{modop}, @var{resultlist}, and
-@var{result}.
+The 6 fields in a @code{diceroll} record are @code{dicestring},
+@code{dicelist}, @code{modifier}, @code{modop}, @code{resultlist}, and
+@code{result}.
 @item
-A @var{diceroll} can be expressed as a string in the form "XdYZA", where
+A @code{diceroll} can be expressed as a string in the form "XdYZA", where
 X, Y, and A are integers and Z is an arithmetic operation in the set
 @{addition, subtraction, multiplication, division, modulus@}, or
 @{+,-,*,/,%@}. X is the number of "dice" to roll. Y is the number of
@@ -389,59 +608,59 @@ sides per die. And A is a constant for the right side of the
 operation. The "ZA" portion can be left off, in which case the dice are
 rolled as is.
 @item
-The abovementioned string is the @var{dicestring} for the @var{diceroll}.
+The abovementioned string is the @code{dicestring} for the @code{diceroll}.
 @item
-The @var{dicestring} is parsed during creation into a list in the form
-@code{'(count, sides, modifier)}. This list is the @var{dicelist} for
-the @var{diceroll}.
+The @code{dicestring} is parsed during creation into a list in the form
+@code{'(count, sides, modifier)}. This list is the @code{dicelist} for
+the @code{diceroll}.
 @item
-The @var{modifier} is pulled from the @var{dicelist} and stored
+The @code{modifier} is pulled from the @code{dicelist} and stored
 separately, as it is not random and therefore can be preserved as is.
 @item
-The @var{modop} is calculated by interpreting the character used and
+The @code{modop} is calculated by interpreting the character used and
 looking up the equivalent operation, which is stored as a procedure.
 @item
-The @var{resultlist} is calculated during the creation of the
-@var{diceroll} by "rolling" dice according to the @var{dicelist}
+The @code{resultlist} is calculated during the creation of the
+@code{diceroll} by "rolling" dice according to the @code{dicelist}
 mentioned above.
 @item
-The @var{result} is calclulated by taking the sum of all of the members
-of the @var{resultlist}, and the @var{modifier}, and applying the
-@var{modop} to them.
+The @code{result} is calclulated by taking the sum of all of the members
+of the @code{resultlist}, and the @code{modifier}, and applying the
+@code{modop} to them.
 @item
-The above six fields are referenced in the resulting @var{diceroll}
+The above six fields are referenced in the resulting @code{diceroll}
 using the appropriate accessor functions in the table below.
 @end enumerate
 
-The following table assumes that a @var{diceroll} named @samp{foo}
+The following table assumes that a @code{diceroll} named @samp{foo}
 exists. This outlines the functions used to access the fields defined
 above. An Example is included below the definition, assuming @samp{foo}
-was created using the @var{dicestring} @samp{"1d4+1"}, with the roll of the
+was created using the @code{dicestring} @samp{"1d4+1"}, with the roll of the
 single die resulting in a @samp{3}.
 
 @ftable @code
 @item (diceroll-string @samp{foo})
-Return the @var{dicestring} of @samp{foo}.
+Return the @code{dicestring} of @samp{foo}.
 
 @emph{Example: @samp{"1d4+1"}}
 @item (diceroll-list @samp{foo})
-Return the @var{dicelist} of @samp{foo}.
+Return the @code{dicelist} of @samp{foo}.
 
 @emph{Example: @samp{1, 4, 1}}
 @item (diceroll-modifier-value @samp{foo})
-Return the @var{modifier} of @samp{foo}.
+Return the @code{modifier} of @samp{foo}.
 
 @emph{Example: @samp{1}}
 @item (diceroll-modifier-operation @samp{foo})
-Return the @var{modop} of @samp{foo}.
+Return the @code{modop} of @samp{foo}.
 
 @emph{Example: @samp{#<procedure +>}}
 @item (diceroll-results @samp{foo})
-Return the @var{resultlist} of @samp{foo}.
+Return the @code{resultlist} of @samp{foo}.
 
 @emph{Example: @samp{'(3)}}
 @item (diceroll-value @samp{foo})
-Return the @var{result} of @samp{foo}.
+Return the @code{result} of @samp{foo}.
 
 @emph{Example: @samp{4}}
 @end ftable
