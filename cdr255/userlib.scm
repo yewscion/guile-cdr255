@@ -442,3 +442,35 @@ Impurities
 None."
   (filter (lambda (x) (not (string= "" x)))
           original-list))
+(define (iteratively-replace-regexp regexp original-list replacement-list)
+  "Replace all matches for REGEXP in each member of ORIGINAL-LIST with each
+member of REPLACEMENT-LIST.
+
+This is a CALCULATION.
+
+Arguments
+=========
+REGEXP<string>: A POSIX-extended regular expression string, escaped for guile
+scheme.
+
+ORIGINAL-LIST<<list> of <strings>>: The original list, containing parts that
+match REGEXP.
+
+REPLACEMENT-LIST<<list> of <strings>>: The list of substitutions for REGEXP,
+that will replace matches in ORIGINAL-LIST.
+
+Returns
+=======
+
+A <<list> of <strings>> representing each member of ORIGINAL-LIST with each
+member of REPLACEMENT-LIST in the place of REGEXP matches. Will return a list
+of size (* (length original-list) (length replacement-list)).
+
+Impurities
+==========
+None."
+  (apply append (map
+                 (lambda (x)
+                   (map (lambda (y)
+                          (replace-regexp-in-string regexp x y))
+                        original-list)) replacement-list)))
