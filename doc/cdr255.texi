@@ -564,6 +564,29 @@ or compiled.
 @end deffn
 
 @c *********************************************************************
+@deffn {Scheme Procedure} iteratively-replace-regexp
+@code{regexp} @code{original-list} @code{replacement-list}
+@ref{CALCULATION}
+
+Replace all matches of @code{regexp} in each member of
+@code{original-list} with each member of @code{replacement-list},
+keeping all permutations.
+
+Useful for generating strings from a template, using @acronym{ERE} as a
+target to replace.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-list-orig '("Hello" "Jello" "Mello"))
+(define test-list-replace '("" "ey" "(ell)"))
+(iteratively-replace-regexp "ell" test-list-orig test-list-replace) @result{}
+
+'("Ho" "Jo" "Mo" "Heyo" "Jeyo" "Meyo" "H(ell)o" "J(ell)o" "M(ell)o")
+@end lisp
+@end deffn
+
+@c *********************************************************************
 @deffn {Scheme Procedure} remove-empty-strings
 @code{original-list}
 @ref{CALCULATION}
