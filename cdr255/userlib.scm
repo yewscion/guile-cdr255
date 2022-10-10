@@ -422,3 +422,22 @@ None."
                    section
                    (if extension
                        extension))))
+(define (remove-empty-strings original-list)
+  "Remove all empty strings from ORIGINAL-LIST.
+
+This is a CALCULATION.
+
+Arguments
+=========
+ORIGINAL-LIST<<list> of <strings>>: A parsed list of strings that may have
+                                    empties.
+
+Returns
+=======
+A <<list> of <strings>> including every non-empty-string from ORIGINAL-LIST.
+
+Impurities
+==========
+None."
+  (filter (lambda (x) (not (string= "" x)))
+          original-list))

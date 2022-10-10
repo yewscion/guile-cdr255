@@ -564,6 +564,26 @@ or compiled.
 @end deffn
 
 @c *********************************************************************
+@deffn {Scheme Procedure} remove-empty-strings
+@code{original-list}
+@ref{CALCULATION}
+
+Remove all empty string from @code{original-list}.
+
+These might be the result of sloppy filtering, or user input, or empty
+fields in files. Either way, this procedure removes them.
+
+@lisp
+(use-modules (cdr255 userlib))
+
+(define test-list '("Here's a" "" " list of " "" "Strings."))
+(remove-empty-strings test-list) @result{}
+
+'("Here's a" " list of " "Strings.")
+@end lisp
+@end deffn
+
+@c *********************************************************************
 @node Game Tools, Dice, Userlib, Top
 @chapter Game Tools
 This module is specifically supposed to collect procedures useful for
