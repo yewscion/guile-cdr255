@@ -14,6 +14,7 @@
             find-file-extension
             get-file-as-string
             remove-c-multiline-comments-from-string
+            remove-empty-strings
             remove-regexp-from-string
             remove-substring-from-assignment-list
             replace-regexp-in-string
