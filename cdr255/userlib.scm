@@ -5,6 +5,7 @@
   #:use-module (ice-9 regex)
   #:export (add-section-to-filename
             apply-recursive-regexp-replacement
+            assignment-string->assignment-list
             clean-assignment-list
             dereference-env
             dereference-env-in-assignment-list
@@ -13,13 +14,13 @@
             dump-string-to-file
             find-file-extension
             get-file-as-string
+            iteratively-replace-regexp
             remove-c-multiline-comments-from-string
             remove-empty-strings
             remove-regexp-from-string
             remove-substring-from-assignment-list
             replace-regexp-in-string
-            set-env-from-list
-            assignment-string->assignment-list))
+            set-env-from-list))
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
 
