@@ -34,7 +34,9 @@ SUFFIXES = .scm .go
 .scm.go:
 	$(AM_V_GEN)$(top_builddir)/pre-inst-env $(GUILE_TOOLS) compile $(GUILE_WARNINGS) -o "$@" "$<"
 
-SOURCES = cdr255/userlib.scm
+SOURCES = cdr255/userlib.scm                    \
+	  cdr255/gamelib.scm                    \
+	  cdr255/combinators.scm
 
 TESTS = tests/tests.scm
 
