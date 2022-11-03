@@ -3,7 +3,7 @@ AC_INIT([guile-cdr255],
         [0.2.0],
         [yewscion@gmail.com],
         [guile-cdr255],
-        [project-homepage])
+        [https://sr.ht/~yewscion/guile-cdr255/])
 
 dnl General Project Variables
 AC_SUBST(LICENSE, ["Copyright (C) 2022 Christopher Rodriguez
@@ -19,9 +19,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this program.  If not, see <https://www.gnu.org/licenses/>."])
 
-"])
+AC_SUBST(PACKAGE_DOCS_COMMAND, [info])
+
+dnl Skip Multiline Variables in Automake per:
+dnl https://automake.gnu.narkive.com/99bOFWk4/multiline-variables-and-ac-subst#post2
 _AM_SUBST_NOTMAKE([LICENSE])
 AC_CONFIG_SRCDIR([README.md])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -49,6 +52,9 @@ dnl Finishing Up
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([cdr255/combinators.scm])
+AC_CONFIG_FILES([cdr255/userlib.scm])
+AC_CONFIG_FILES([cdr255/gamelib.scm])
 AC_CONFIG_FILES([pre-inst-env], [chmod +x pre-inst-env])
 AC_CONFIG_FILES([doc/version.texi])
 AC_OUTPUT

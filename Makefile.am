@@ -51,9 +51,12 @@ EXTRA_DIST =  Changelog.md \
               m4/tar-edited.m4 \
               guix.scm \
               pre-inst-env.in \
+	      test-env \
               doc/version.texi.in \
               doc/fdl-1.3.texi \
-              doc/procedure-types.texi
+              doc/procedure-types.texi \
+	      tests/maintests.scm \
+	      build-aux/test-driver.scm
 
 ## Cleaning Up
 
@@ -70,9 +73,9 @@ CLEANFILES =					\
 # Define Inputs
 
 # ## Define Guile files
-GUILESOURCES = $(srcdir)/cdr255/combinators.scm \
-	       $(srcdir)/cdr255/gametools.scm   \
-	       $(srcdir)/cdr255/userlib.scm
+GUILESOURCES = $(builddir)/cdr255/combinators.scm \
+	       $(builddir)/cdr255/gamelib.scm   \
+	       $(builddir)/cdr255/userlib.scm
 
 ## Don't Distribute, Don't Install
 nodist_noinst_SCRIPTS = pre-inst-env
@@ -111,7 +114,7 @@ TESTS = tests/maintests.scm
 AM_TESTS_ENVIRONMENT = abs_top_srcdir="$(abs_top_srcdir)" GUILE_AUTO_COMPILE=0
 
 SCM_LOG_DRIVER =                                 \
-   $(top_srcdir)/test-env --quiet-stderr         \
+   $(top_builddir)/pre-inst-env         \
    $(GUILE) --no-auto-compile -L $(top_srcdir) -e main \
        $(top_srcdir)/build-aux/test-driver.scm
 

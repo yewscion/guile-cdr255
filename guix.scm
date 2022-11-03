@@ -11,6 +11,7 @@
  (gnu packages texinfo)
  (gnu packages guile)
  (gnu packages guile-xyz)
+ (gnu packages admin)
  (guix gexp))
 
 (package
@@ -23,22 +24,22 @@
                                      ".tar.bz2")))
   (build-system gnu-build-system)
   (arguments
-   `(#:tests? #t
-     #:phases
+   `(#:phases
      (modify-phases
       %standard-phases
-      ;; This allows the paths for guile and java to be embedded in the scripts
-      ;; in bin/
       (add-before
-       'patch-usr-bin-file 'remove-script-env-flags
+       'check 'debug-tests
        (lambda* (#:key inputs #:allow-other-keys)
-         (substitute*
-          (find-files "./bin")
-          (("#!/usr/bin/env -S guile \\\\\\\\")
-           "#!/usr/bin/env guile \\"))))
+         (map (lambda (x)
+                (display (string-append "Checking " x "…\n"))
+                (system (string-append "cat " x)))
+              '("./pre-inst-env"
+                "./build-aux/test-driver.scm"
+                "./tests/maintests.scm"))
+         (system "./test-env --quiet-stderr guile --no-auto-compile -L . -e main ./build-aux/test-driver.scm")))
       ;; Java and Guile programs don't need to be stripped.
       (delete 'strip))))
-  (native-inputs (list autoconf automake pkg-config texinfo))
+  (native-inputs (list autoconf automake pkg-config texinfo tree))
   (inputs (list guile-3.0-latest))
   (synopsis "Yewscion's Guile Library")
   (description

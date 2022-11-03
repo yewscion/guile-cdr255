@@ -1,4 +1,13 @@
-(define-module (cdr255 gametools)
+#|
+This program is a part of @PACKAGE_STRING@.
+
+@LICENSE@
+
+Bug Reports: @PACKAGE_BUGREPORT@
+Homepage: @PACKAGE_URL@
+Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
+|#
+(define-module (cdr255 gamelib)
   #:version (0 1 1)
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 string-fun)

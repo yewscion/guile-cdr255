@@ -1,4 +1,7 @@
 #!/bin/sh
+set -o errexit nounset pipefail
+if [[ "${TRACE-0}" == "1" ]]; then set -o xtrace; fi
+cd "$(dirname "$0")"
 
 echo "Incanting and Casting…"
 
@@ -15,5 +18,6 @@ if [ -f "build" ]; then
     exit;
 fi
 ./incant.sh
-guix shell -f guix.scm bash coreutils guile --rebuild-cache --pure -- guile
+guix build -K -f guix.scm bash coreutils guile
+guix shell -f guix.scm bash coreutils guile --rebuild-cache --pure -v4 -- guile
 echo "Casting Complete. Make any needed changes now."
