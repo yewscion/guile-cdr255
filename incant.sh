@@ -16,6 +16,8 @@ mkdir -pv build/
 cd build/
 ../configure
 make
+mkdir tests
+make check
 DESTDIR=test/ make install
 tree test
 make dist
