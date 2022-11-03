@@ -1,16 +1,29 @@
--*- mode: org; coding: utf-8; -*-
+#+title: project-name NEWS – history of user-visible changes
+#+startup: content
+* Changes in 0.2.0
+** New Features
+- *Userlib*: A module of procedures for quickly writing scripts.
+- *Gamelib*: A module of game-related procedures.
+- *Combinators*: A module for easy access to combinators.
+- 100% documentation!
+** Bugfixes
 
-#+TITLE: Guile Cdr255 NEWS – history of user-visible changes
-#+STARTUP: content hidestars
+- No prior release logged, so "bugs" don't exist yet per se.
 
+* Changes at 0.1.0
+Not released yet, everything is volatile and experimental. Ye've ben warn'd.
+* Postamble
 Copyright © (2022) Christopher Rodriguez <yewscion@gmail.com>
 
   Copying and distribution of this file, with or without modification,
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
-Please send guile cdr255 bug reports to
-[yewscion@gmail.com](mailto:yewscion@gmail.com).
+Please send bug reports to [[mailto:yewscion@gmail.com][yewscion@gmail.com]].
 
-* Publication at 0.1
-Not released yet, everything is volatile and experimental. Ye've ben warn'd.
+
+
+# Local Variables:
+# mode: org
+# coding: utf-8-unix
+# End:

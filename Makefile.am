@@ -1,83 +1,121 @@
+# Template Variables: guile-cdr255
+################################################################################
 
+# Set Up Guile Variables
 
-bin_SCRIPTS = scripts/set-gitconfig
+GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
 
-# Handle substitution of fully-expanded Autoconf variables.
+## Directory for Uncompiled Guile Modules
+moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)
+
+## Directory for Compiled Guile Modules
+godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
+
+## Same as above, but for transient Compiled Guile Modules
+ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
+
+## Handle substitution of fully-expanded Guile Autoconf variables.
 do_subst = $(SED)					\
   -e 's,[@]GUILE[@],$(GUILE),g'				\
   -e 's,[@]guilemoduledir[@],$(guilemoduledir),g'	\
   -e 's,[@]guileobjectdir[@],$(guileobjectdir),g'	\
   -e 's,[@]localedir[@],$(localedir),g'
 
-nodist_noinst_SCRIPTS = pre-inst-env
-
-GOBJECTS = $(SOURCES:%.scm=%.go)
-
-moddir=$(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)
-godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
-ccachedir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
-
-nobase_mod_DATA = $(SOURCES) $(NOCOMP_SOURCES)
-nobase_go_DATA = $(GOBJECTS)
-
-# Make sure source files are installed first, so that the mtime of
-# installed compiled files is greater than that of installed source
-# files.  See
-# <http://lists.gnu.org/archive/html/guile-devel/2010-07/msg00125.html>
-# for details.
-guile_install_go_files = install-nobase_goDATA
-$(guile_install_go_files): install-nobase_modDATA
-
-EXTRA_DIST = $(SOURCES) $(NOCOMP_SOURCES)
-GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
+## Handle Special Build Reqs
 SUFFIXES = .scm .go
 .scm.go:
-	$(AM_V_GEN)$(top_builddir)/pre-inst-env $(GUILE_TOOLS) compile $(GUILE_WARNINGS) -o "$@" "$<"
+	$(AM_V_GEN)$(top_builddir)/pre-inst-env $(GUILE_TOOLS) \
+	compile $(GUILE_WARNINGS) -o "$@" "$<"
 
-SOURCES = cdr255/userlib.scm                    \
-	  cdr255/gamelib.scm                    \
-	  cdr255/combinators.scm
+################################################################################
 
-TESTS = tests/tests.scm
+# Set Up Other Variables
 
-TEST_EXTENSIONS = .scm
-SCM_LOG_DRIVER =                                \
-  $(top_builddir)/pre-inst-env                  \
-  $(GUILE) --no-auto-compile -e main            \
-      $(top_srcdir)/build-aux/test-driver.scm
+## Enable local m4 cache
+ACLOCAL_AMFLAGS = -I m4
 
-# Tell 'build-aux/test-driver.scm' to display only source file names,
-# not indivdual test names.
-AM_SCM_LOG_DRIVER_FLAGS = --brief=yes
+## Documentation Compilation
+info_TEXINFOS = doc/guile-cdr255.texi
 
-AM_SCM_LOG_FLAGS = --no-auto-compile -L "$(top_srcdir)"
-
-AM_TESTS_ENVIRONMENT = abs_top_srcdir="$(abs_top_srcdir)"
-
-info_TEXINFOS = doc/cdr255.texi
-
-dvi: # Don't build dvi docs
-
-EXTRA_DIST += Changelog \
+## Extra Files for Distribution
+EXTRA_DIST =  Changelog.md \
               LICENSE \
+              COPYING \
               NEWS \
               AUTHORS \
               README.org \
+              README.md \
+              Changelog.md \
               ChangeLog \
               COPYING \
               m4/tar-edited.m4 \
               guix.scm \
-              hall.scm \
               pre-inst-env.in \
-              build-aux/test-driver.scm \
-              $(TESTS)
+              doc/version.texi.in \
+              doc/fdl-1.3.texi \
+              doc/procedure-types.texi
 
-ACLOCAL_AMFLAGS = -I m4
+## Cleaning Up
 
+### Clean Up Compiled Guile Modules
 clean-go:
 	-$(RM) $(GOBJECTS)
 .PHONY: clean-go
 
+### Filelist for make clean
 CLEANFILES =					\
   $(GOBJECTS)					\
-  $(TESTS:tests/%.scm=%.log)
+  $(TESTS:tests/%.scm=%.log)				
+################################################################################
+# Define Inputs
+
+# ## Define Guile files
+GUILESOURCES = $(srcdir)/cdr255/combinators.scm \
+	       $(srcdir)/cdr255/gametools.scm   \
+	       $(srcdir)/cdr255/userlib.scm
+
+## Don't Distribute, Don't Install
+nodist_noinst_SCRIPTS = pre-inst-env
+################################################################################
+
+# Define Outputs
+
+## Compiled Guile Modules (foo.go)
+GOBJECTS = $(GUILESOURCES:%.scm=%.go)
+
+## These are the actual Modules to Install, with directory structures intact
+## (nobase). They are tied to the appropriate dir above.
+nobase_mod_DATA = $(GUILESOURCES) $(NOCOMPSOURCES)
+nobase_go_DATA = $(GOBJECTS)
+
+## Make sure source files are installed first, so that the mtime of
+## installed compiled files is greater than that of installed source
+## files.  See
+## <http://lists.gnu.org/archive/html/guile-devel/2010-07/msg00125.html>
+## for details.
+guile_install_go_files = install-nobase_goDATA
+$(guile_install_go_files): install-nobase_modDATA
+
+## Symlinks Can Go Here, along with other end-of-install changes
+# install-data-hook:
+# 	$(LN_S) $(DESTDIR)$(bindir)/realfile $(DESTDIR)$(bindir)/link
+# 	chmod +x $(DESTDIR)$(javadir)/guile-cdr255.jar
+
+## Sources and Extras
+EXTRA_DIST += $(GUILESOURCES) $(NOCOMP_SOURCES)
+################################################################################
+
+# Tests
+TESTS = $(srcdir)/tests/tests.scm
+
+TEST_EXTENSIONS = .scm
+SCM_LOG_DRIVER =                                 \
+   $(top_builddir)/pre-inst-env                  \
+   $(GUILE) --no-auto-compile -e main            \
+       $(top_srcdir)/build-aux/test-driver.scm
+
+# Tell 'build-aux/test-driver.scm' to display only source file names,
+# not indivdual test names.
+AM_SCM_LOG_DRIVER_FLAGS = --brief=yes
+AM_SCM_LOG_FLAGS = --no-auto-compile -L "$(top_srcdir)"
+AM_TESTS_ENVIRONMENT = abs_top_srcdir="$(abs_top_srcdir)" GUILE_AUTO_COMPILE=0

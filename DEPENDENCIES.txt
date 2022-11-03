@@ -1,0 +1,18 @@
+This file lists all of the libraries this repository depends on, in case You
+don't want to or can't use GNU Guix.
+
+- autoconf
+- automake
+- pkg-config
+- texinfo
+- guile3
+
+Here are a few more dependencies for interacting with the repository itself.
+
+- bzip2 / gzip
+- git
+- git send-email
+- emacs
+- bash
+
+Hope that helps!

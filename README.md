@@ -1,14 +1,14 @@
 
 
-# The `guile cdr255` README
+# The `guile-cdr255` README
 
-**A Utility Guile Library**
+**Yewscion's Guile Library.**
 
-*Last Updated: 2022-06-05 (W22) 20:08:30 GMT*
+*Last Updated: 2022-11-03 (W44) 00:22:17 GMT*
 
-Mostly just a guile library, this is a personal project to make maintaining
-multiple systems easier and the creation of new scripts easier. I've hosted it
-here mostly out of convenience for me, but if it's useful to You too, awesome!
+This is a user library for GNU Guile. I'm building it up as I find I need to
+reuse code, rather than having various procedures reimplemented across
+various projects for no reason.
 
 
 # Installation
@@ -17,7 +17,7 @@ here mostly out of convenience for me, but if it's useful to You too, awesome!
 ## GNU Guix
 
 If You use [GNU Guix](https://guix.gnu.org/), this package 
-is on [my channel](https://sr.ht/~yewscion/yewscion-guix-channel/). 
+is on [my channel](https://sr.ht/~yewscion/yewscion-guix-channel/).
 
 Once You have it set up, You can just run:
 
@@ -53,7 +53,7 @@ If You don't want to use git, or would rather stick with an
 actual release, then see the tagged releases for some tarballs
 of the source.
 
-The needed dependencies are tracked in the DEPENDENCIES.txt file
+The needed dependencies are tracked in the `DEPENDENCIES.txt` file
 to support this use case.
 
 
@@ -63,10 +63,9 @@ Full usage is documented in the `doc/guile-cdr255.info` file. Here are
 only generic instructions.
 
 Once `guile-cdr255` in installed, You should be able to access all of
-its exported functionsin guile by using its modules:
+its exported functions in guile by using its modules:
 
     (use-modules (cdr255 main))
-    (library-info) ;; I include this in all my libraries
 
 Any binaries or scripts will be available in Your `$PATH`. A list of these
 is maintained in the info file. They all also have the `--help=` flag, so
@@ -93,7 +92,7 @@ need to be confirmed to work in the above environment before merge.
 # License
 
 The `guile-cdr255` project and all associated files are ©2022 Christopher
-Rodriguez, butlicensed to the public at large under the terms of the:
+Rodriguez, but licensed to the public at large under the terms of the:
 
 [GNU AGPL3.0+](https://www.gnu.org/licenses/agpl-3.0.html) license.
 

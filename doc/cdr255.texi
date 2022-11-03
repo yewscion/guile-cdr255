@@ -1,11 +1,11 @@
-
+@c Variables: project-name Project Name project-category
 \input texinfo
 @c -*-texinfo-*-
 
 @c %**start of header
 @setfilename guile-cdr255.info
 @documentencoding UTF-8
-@settitle guile cdr255 Reference Manual
+@settitle cdr255 Guile Library Reference Manual
 @c %**end of header
 
 @include version.texi
@@ -27,7 +27,7 @@ Documentation License''.
 @end direntry
 
 @titlepage
-@title The guile cdr255 Manual
+@title The cdr255 Guile Library Manual
 @author Christopher Rodriguez
 
 @page
@@ -48,6 +48,7 @@ This document describes guile cdr255 version @value{VERSION}.
 * Introduction::                Why Guile Cdr255?
 * Userlib::                     Procedures for End-User Scripting.
 * Game Tools::                  Procedures for Making/Playing Games.
+* Combinators::                 Procedures to Combine Procedures.
 
 * Concept Index::               Concepts Used, and Where.
 * Programming Index::           Functions, Variables, Etc.
@@ -59,9 +60,6 @@ This document describes guile cdr255 version @value{VERSION}.
  --- The Detailed Node Listing ---
 
 Introduction
-
-* Utility Scripts::             A small collection of scripts.
-
 Userlib
 
 * Environment Variables::       Interfacing with the User Environment.
@@ -71,7 +69,11 @@ Userlib
 
 Game Tools
 
-* Dice::                        Emulating Physical RNG
+* Dice::                        Emulating Physical RNG.
+
+Combinators
+
+* Combinators::                 Gluing procedures together.
 
 
 @end detailmenu
@@ -113,12 +115,22 @@ through @command{git}.
 @c *********************************************************************
 @node Userlib,  Environment Variables, Utility Scripts, Top
 @chapter Userlib
+
 This module is specifically supposed to collect procedures useful for
 enabling scripting by a user.
 
 The functions here all deal with environment codeiables, reading and
 writing files, displaying pretty-printed output, and running other
 programs.
+
+@menu
+
+* Environment Variables::      Interacting with Environment Variables.
+* Assignment List Tools::      Working with Lists of Assignments.
+* File Tools::                 Working with Files.
+* Regular Expressions::        Working with EREs.
+@end menu
+
 
 @c *********************************************************************
 @node Environment Variables, Assignment List Tools, Userlib, Userlib
@@ -617,7 +629,7 @@ making or playing games.
 @end menu
 
 @c *********************************************************************
-@node Dice, Concept Index, Game Tools, Game Tools
+@node Dice, Combinators, Game Tools, Game Tools
 @section Dice
 Rolling random numbers and using the results is one of the simplest
 tools used in game design. These procedures all center around making
@@ -707,6 +719,62 @@ Return the @code{result} of @samp{foo}.
 
 @emph{Example: @samp{4}}
 @end ftable
+
+@c *********************************************************************
+@node Combinators, Basics, Game Tools, Top
+@chapter Combinators
+
+Combinators come from Combinatory Logic, which Moses Schönfinkel and
+Haskell Curry solidified in the 20th century and many (including Raymond
+M. Smullyan and his "To Mock a Mockingbird" book) have expanded upon and
+refined up to and through this day.
+
+In essence, a combinator is a specific way to @emph{combine}—hence the
+name—procedures together. One might think of them as pipes between
+functions, or as higher-order functions, or as logic-obsessed birds, but
+in the end they really are patterns with which procedures might be
+combined to do anything.
+
+And yes, combinatory logic is Turing-Complete.
+
+@menu
+* Basics::                       S, K, I, B, C, W.
+@end menu
+
+@c *********************************************************************
+@node Basics, Concept Index, Combinators, Combinators
+@section Basics
+
+What follows are the combinators considered by some to be fundamental:
+The SKI and BCW combinators will all eventually be here.
+
+@c *********************************************************************
+@deffn {Scheme Procedure} bluebird
+@code{action} @code{procedure}
+@ref{CALCULATION}
+
+Create a procedure that is equivalent to applying @code{procedure} on
+some arguments, and then applying @code{action} on the result.
+
+Also known as the B Combinator, @code{S(KS)K}, @code{λabc.a(bc)},
+@code{atop}, and @code{a => b => c => a(b(c))}.
+
+The parameters are so named because a common use (for me) of the
+bluebird combinator is to "wrap" procedures with @code{display} or
+@code{format}. This isolates the @ref{ACTION} from the
+@ref{CALCULATION}, allowing complex code to be free of side-effects. It
+also saves a lot of repetitious code.
+
+@lisp
+(use-modules (cdr255 combinators))
+
+(define display-addition
+        (bluebird display +))
+(display-addition 2 5) @result{}
+
+#<undefined> (the result of "7" is printed to the screen.)
+@end lisp
+@end deffn
 
 @c *********************************************************************
 @node Concept Index, Programming Index, Game Tools, Top
