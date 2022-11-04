@@ -40,7 +40,6 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             generate-flags
             generate-value-section
             generate-help-string))
-(generate-help-string "Usage: foo --bar" '((version (single-char #\v) (value #f)) (help (single-char #\h) (value #f))) '((help action "Display this help") (version option "Display version info")) "License: Foobar")
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
@@ -828,7 +827,7 @@ None."
                  (generate-package-flags option-spec description-alist)
                  "\n\n"
                  license
-                 "\n"))
+                 "\n")
 
 
 ;;        (version (option-ref options 'version #f))
