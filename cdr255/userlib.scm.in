@@ -8,7 +8,7 @@ Homepage: @PACKAGE_URL@
 Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
 |#
 (define-module (cdr255 userlib)
-  #:version (0 1 1)
+  #:version (0 2 0)
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 string-fun)
   #:use-module (ice-9 regex)
@@ -29,7 +29,19 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             remove-regexp-from-string
             remove-substring-from-assignment-list
             replace-regexp-in-string
-            set-env-from-list))
+            set-env-from-list
+            join-lines
+            join-lines-with-header
+            generate-package-flags
+            filter-symbol-list
+            generate-string-fill
+            generate-string-space-fill
+            generate-flag-descriptions
+            generate-flags
+            generate-value-section
+            generate-help-string))
+(generate-help-string "Usage: foo --bar" '((version (single-char #\v) (value #f)) (help (single-char #\h) (value #f))) '((help action "Display this help") (version option "Display version info")) "License: Foobar")
+
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
 
@@ -484,3 +496,340 @@ None."
                    (map (lambda (y)
                           (replace-regexp-in-string regexp x y))
                         original-list)) replacement-list)))
+;;; Undocumented
+(define (join-lines list-of-lines)
+  "Creates one long string with each member of LIST-OF-LINES on a seperate
+line.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+LIST-OF-LINES <<list> of <strings>>: A list of strings, with each one
+representing an entire line.
+
+Returns
+=======
+A <string> representing all of the members of LIST-OF-LINES on a separate
+lines.
+
+Impurities
+==========
+None."
+   (string-join
+    list-of-lines
+    "\n"
+    'infix))
+
+(define (join-lines-with-header header list-of-lines next)
+  "Combine the HEADER and LIST-OF-LINES into a string, optionally with a
+spacer included… if something is NEXT.
+
+This is a CALCULATION.
+
+Arguments
+=========
+HEADER <string>: The text to use as the heading of the section.
+
+LIST-OF-LINES <<list> of <strings>>: A list of strings, with each one
+representing an entire line.
+
+NEXT <boolean>: Whether to include the empty line to separate this section
+from another one.
+
+Returns
+=======
+A <string> representing the section that is an amalgamation of the above
+parameters.
+
+
+Impurities
+==========
+None."
+  (if list-of-lines
+      (string-append
+       header
+       "\n\n"
+       (join-lines list-of-lines)
+       (if next
+           "\n\n"
+           ""))
+      ""))
+
+(define (generate-package-flags option-spec description-alist)
+  "Generate a string representing the various command line flags/config files
+for a script.
+
+This is a CALCULATION.
+
+Arguments
+=========
+OPTION-SPEC <<list> of <lists>>: An alist in the correct form for
+getopt-long. Example:
+
+'((version (single-char #\\v) (value #f))
+    (help (single-char #\\h) (value #f)))
+
+DESCRIPTION-ALIST <<list> of <lists>>: An alist starting with symbols that
+match each of the long-options in the OPTION-SPEC, followed by a category
+symbol (one of 'action, 'option, 'config, or 'note), and finally a string
+representing the description of that option. Example:
+
+'((help action \"Display this help\")
+  (version option \"Display version info\"))
+
+Returns
+=======
+A <string> outlining all of the supplied flags, for use in a --help text.
+
+Impurities
+==========
+None."
+  (let* ((flag-descriptions
+         (generate-flag-descriptions option-spec description-alist))
+         (actions (filter-symbol-list flag-descriptions 'action))
+         (options (filter-symbol-list flag-descriptions 'option))
+         (configs (filter-symbol-list flag-descriptions 'config))
+         (notes   (filter-symbol-list flag-descriptions 'note)))
+    (string-append
+     (join-lines-with-header "Actions:" actions (or options configs notes))
+     (join-lines-with-header "Options:" options (or configs notes))
+     (join-lines-with-header "Configuration:" configs notes)
+     (join-lines-with-header "Notes:" notes #f))))
+(define (filter-symbol-list alist symbol)
+  "Filter ALIST to only include those members that start with SYMBOL.
+
+This is a CALCULATION.
+
+Arguments
+=========
+ALIST <<list> of <lists>>: An association list starting with symbols, which
+may repeat.
+
+SYMBOL <symbol>:  A symbol to use as the match for filtering ALIST.
+
+Returns
+=======
+A <<list> of <lists>> which contains all of the members of ALIST that start
+with SYMBOL.
+
+Impurities
+==========
+None."
+  (let ((result (map cadr
+                     (filter (lambda (x) (eq? symbol (car x))) alist))))
+    (if (eq? '() result)
+        #f
+        result)))
+
+(define (generate-string-fill pre-string start-column fill-character)
+  "Generate a string to use for spacing purposes.
+
+This is a CALCULATION.
+
+Arguments
+=========
+PRE-STRING <string>: A string to use as the prior part of the current line,
+for formatting purposes.
+
+START-COLUMN <number>: The target column at which the next string should
+start.
+
+FILL-CHARACTER <character>: The character use as a filler for indentation
+purposes.
+
+Returns
+=======
+A <string> to append to a pre-existing string for indenting the string
+appended to it properly.
+
+Impurities
+==========
+None."
+  (let ((indent (- start-column (string-length pre-string))))
+    (if (> indent 0)
+        (make-string indent
+                     fill-character)
+        (string-append "\n"
+                       (make-string start-column fill-character)))))
+
+(define (generate-string-space-fill pre-string start-column)
+"Generate a string made of spaces for indentation purposes.
+
+This is a CALCULATION.
+
+Arguments
+=========
+PRE-STRING <string>: A string to use as the prior part of the current line,
+for formatting purposes.
+
+START-COLUMN <number>: The target column at which the next string should
+start.
+
+Returns
+=======
+A <string> to append to a pre-existing string for indenting the string
+appended to it properly, with spaces.
+
+Impurities
+==========
+None."
+  (generate-string-fill pre-string start-column #\ ))
+
+
+(define (generate-flag-descriptions option-spec description-alist)
+  "Generate the descriptive lines for the flags in OPTION-SPEC, using
+DESCRIPTION-ALIST as the extra information needed.
+
+This is a CALCULATION.
+
+Arguments
+=========
+OPTION-SPEC <<list> of <lists>>: An alist in the correct form for
+getopt-long. Example:
+
+'((version (single-char #\\v) (value #f))
+    (help (single-char #\\h) (value #f)))
+
+DESCRIPTION-ALIST <<list> of <lists>>: An alist starting with symbols that
+match each of the long-options in the OPTION-SPEC, followed by a category
+symbol (one of 'action, 'option, 'config, or 'note), and finally a string
+representing the description of that option. Example:
+
+'((help action \"Display this help\")
+  (version option \"Display version info\"))
+
+Returns
+=======
+A <<list> of <lists>> with each member starting with a category symbol,
+followed by a full description string for the flag.
+
+
+Impurities
+==========
+None."
+  (let* ((flags (generate-flags option-spec)))
+    (map (lambda (x)
+           (let ((description (assoc-ref description-alist (car x)))
+                 (flag (cadr x)))
+             (list
+              (car description)
+             (string-append
+              flag
+              (generate-string-space-fill flag 40)
+              (cadr
+               description)))))
+         flags)))
+
+(define (generate-flags option-spec)
+  "Generate the flag portion ('-x, --example') of the help text for cli
+options, or flags.
+
+This is a CALCULATION.
+
+Arguments
+=========
+OPTION-SPEC <<list> of <lists>>: An alist in the correct form for
+getopt-long. Example:
+
+'((version (single-char #\\v) (value #f))
+    (help (single-char #\\h) (value #f)))
+
+Returns
+=======
+A <<list> of <lists>>, with the long option for each flag at the start of
+each member, followed by a string representing the flag portion of the help
+text for that long option.
+
+Impurities
+==========
+None."
+  (let ((option-symbols (map car option-spec)))
+    (map (lambda (x)
+           (let* ((flag (assoc-ref option-spec x))
+                  (value-needed (car (assoc-ref flag 'value))))
+             (list
+              x
+              (string-append
+              "  -"
+              (string (car (assoc-ref flag 'single-char)))
+              (generate-value-section value-needed #f "foo")
+              ", --"
+              (symbol->string x)
+              (generate-value-section value-needed #t "foo")))))
+         option-symbols)))
+
+(define (generate-value-section value-needed long variable)
+  "Generate the portion of the flag section (if needed) to represent the flag
+takes an argument.
+
+This is a CALCULATION.
+
+Arguments
+=========
+VALUE-NEEDED <boolean>: Whether an argument representation is needed.
+
+LONG <boolean>: Whether we're making an argument for a long option.
+
+VARIABLE <string>: The string to use as the argument in the example.
+
+Returns
+=======
+A <string> representing the argument portion of a flag.
+
+Impurities
+==========
+None."
+  (if value-needed
+      (string-append
+       (if long
+           "="
+           " ")
+       variable)
+      ""))
+
+(define (generate-help-string usage option-spec description-alist license)
+  "Generate the help string for a script.
+
+This is a CALCULATION.
+
+Arguments
+=========
+USAGE <string>: A string to quickly explain the order of cli options, with
+little explanation.
+
+OPTION-SPEC <<list> of <lists>>: An alist in the correct form for
+getopt-long. Example:
+
+'((version (single-char #\\v) (value #f))
+    (help (single-char #\\h) (value #f)))
+
+DESCRIPTION-ALIST <<list> of <lists>>: An alist starting with symbols that
+match each of the long-options in the OPTION-SPEC, followed by a category
+symbol (one of 'action, 'option, 'config, or 'note), and finally a string
+representing the description of that option. Example:
+
+'((help action \"Display this help\")
+  (version option \"Display version info\"))
+
+LICENSE <string>: A string explaining the license and communication
+information for the package this script belongs to.
+
+Returns
+=======
+A <string> to use for the --help flag of a script.
+
+Impurities
+==========
+None."
+  (string-append usage
+                 "\n\n"
+                 (generate-package-flags option-spec description-alist)
+                 "\n\n"
+                 license
+                 "\n"))
+
+
+;;        (version (option-ref options 'version #f))
+    ;       (help (option-ref options 'help #f))
