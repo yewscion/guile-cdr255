@@ -827,7 +827,7 @@ None."
                  (generate-package-flags option-spec description-alist)
                  "\n\n"
                  license
-                 "\n")
+                 "\n"))
 
 
 ;;        (version (option-ref options 'version #f))
