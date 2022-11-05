@@ -544,7 +544,6 @@ Returns
 A <string> representing the section that is an amalgamation of the above
 parameters.
 
-
 Impurities
 ==========
 None."
@@ -574,7 +573,7 @@ getopt-long. Example:
 
 DESCRIPTION-ALIST <<list> of <lists>>: An alist starting with symbols that
 match each of the long-options in the OPTION-SPEC, followed by a category
-symbol (one of 'action, 'option, 'config, or 'note), and finally a string
+symbol (either 'action or 'option), and finally a string
 representing the description of that option. Example:
 
 '((help action \"Display this help\")
@@ -590,14 +589,11 @@ None."
   (let* ((flag-descriptions
          (generate-flag-descriptions option-spec description-alist))
          (actions (filter-symbol-list flag-descriptions 'action))
-         (options (filter-symbol-list flag-descriptions 'option))
-         (configs (filter-symbol-list flag-descriptions 'config))
-         (notes   (filter-symbol-list flag-descriptions 'note)))
+         (options (filter-symbol-list flag-descriptions 'option)))
     (string-append
-     (join-lines-with-header "Actions:" actions (or options configs notes))
-     (join-lines-with-header "Options:" options (or configs notes))
-     (join-lines-with-header "Configuration:" configs notes)
-     (join-lines-with-header "Notes:" notes #f))))
+     (join-lines-with-header "Actions:" actions (or options))
+     (join-lines-with-header "Options:" options #f))))
+
 (define (filter-symbol-list alist symbol)
   "Filter ALIST to only include those members that start with SYMBOL.
 
@@ -695,7 +691,7 @@ getopt-long. Example:
 
 DESCRIPTION-ALIST <<list> of <lists>>: An alist starting with symbols that
 match each of the long-options in the OPTION-SPEC, followed by a category
-symbol (one of 'action, 'option, 'config, or 'note), and finally a string
+symbol (either 'action or 'option), and finally a string
 representing the description of that option. Example:
 
 '((help action \"Display this help\")
@@ -790,7 +786,7 @@ None."
        variable)
       ""))
 
-(define (generate-help-string usage option-spec description-alist license)
+(define (generate-help-string usage option-spec description-alist notes license)
   "Generate the help string for a script.
 
 This is a CALCULATION.
@@ -808,11 +804,13 @@ getopt-long. Example:
 
 DESCRIPTION-ALIST <<list> of <lists>>: An alist starting with symbols that
 match each of the long-options in the OPTION-SPEC, followed by a category
-symbol (one of 'action, 'option, 'config, or 'note), and finally a string
+symbol (either 'action or 'option), and finally a string
 representing the description of that option. Example:
 
 '((help action \"Display this help\")
   (version option \"Display version info\"))
+
+NOTES <string>: What to include in the notes section, if anything.
 
 LICENSE <string>: A string explaining the license and communication
 information for the package this script belongs to.
@@ -828,6 +826,12 @@ None."
                  "\n\n"
                  (generate-package-flags option-spec description-alist)
                  "\n\n"
+                 (if notes
+                     (join-lines-with-header
+                      "Notes:"
+                      notes
+                      #t)
+                     "")
                  license
                  "\n"))
 
