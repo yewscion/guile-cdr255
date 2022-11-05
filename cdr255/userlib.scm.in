@@ -714,7 +714,7 @@ None."
               (car description)
              (string-append
               flag
-              (generate-string-space-fill flag 40)
+              (generate-string-space-fill flag 32)
               (cadr
                description)))))
          flags)))
@@ -810,7 +810,8 @@ representing the description of that option. Example:
 '((help action \"Display this help\")
   (version option \"Display version info\"))
 
-NOTES <string>: What to include in the notes section, if anything.
+NOTES <<list> of <strings>>: What to include in the notes section, if
+anything.
 
 LICENSE <string>: A string explaining the license and communication
 information for the package this script belongs to.
