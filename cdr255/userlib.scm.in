@@ -39,7 +39,9 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             generate-flag-descriptions
             generate-flags
             generate-value-section
-            generate-help-string))
+            generate-help-string
+            generate-deps-string
+            generate-deps-lines))
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
@@ -829,6 +831,56 @@ None."
                  license
                  "\n"))
 
+(define (generate-deps-string deps-list)
+  "Generate a dependency error string for a script.
 
-;;        (version (option-ref options 'version #f))
-    ;       (help (option-ref options 'help #f))
+This is a CALCULATION.
+
+Arguments
+=========
+DEPS-LIST <<list> of <lists>>: A list of pairs of strings, with the first
+string representing a needed command for the script, and the second string
+representing the package the command comes from.
+
+Returns
+=======
+A <string> for use in scripts to direct the user to install needed
+dependencies.
+
+Impurities
+==========
+None."
+  (string-append
+   "Error: One or more of the following programs was not found in Your\n"
+   "$PATH. Please ensure they are all installed before using this script.\n\n"
+   (join-lines
+    (generate-deps-lines deps-list))
+   "\n\n"))
+
+(define (generate-deps-lines deps-list)
+  "Creates the actual dependency lines for the dependency string.
+
+This is a CALCULATION.
+
+Arguments
+=========
+DEPS-LIST <<list> of <lists>>: A list of pairs of strings, with the first
+string representing a needed command for the script, and the second string
+representing the package the command comes from.
+
+Returns
+=======
+A <<list> of <strings>> with each member representing a needed external
+command and its package.
+
+Impurities
+==========
+None."
+  (map (lambda (x)
+         (string-append
+          "  - "
+          (car x)
+          "("
+          (cadr x)
+          ")"))
+       deps-list))
