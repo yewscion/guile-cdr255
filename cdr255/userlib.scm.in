@@ -880,7 +880,7 @@ None."
          (string-append
           "  - "
           (car x)
-          "("
+          " ("
           (cadr x)
           ")"))
        deps-list))
