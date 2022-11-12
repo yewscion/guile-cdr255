@@ -889,3 +889,145 @@ None."
           (cadr x)
           ")"))
        deps-list))
+
+(define (compute-directory-list directories)
+  "Transform a list of directory strings into a list of lists of strings,
+each representing one directory level.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+DIRECTORIES <<list> of <strings>>: Each directory string in question, in a
+single list.
+
+Returns
+=======
+
+A <<list> of <lists> of <strings>>, with each member-list representing one
+original directory string, and each member thereof representing one directory
+level of that original string.
+
+Impurities
+==========
+None."
+  (map (lambda (x)
+         (reverse (string-split x #\/)))
+       directories))
+
+(define (compute-directory-dependency directory-list)
+  "Takes a list of directory levels, and returns each level with all of the
+levels it depends on prepended to it.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+DIRECTORY-LIST <<list> of <strings>>: A list representing one original
+directory string, with each member thereof representing one directory level
+of that original string.
+
+Returns
+=======
+
+A <<list> of <strings>> representing one original directory string, with each
+member thereof representing one directory level of the original string, with
+all dependent levels prepended to it, in reverse order, with the deepest
+directory first.
+
+Impurities
+==========
+None."
+  (cond ((= (length directory-list) 0)
+         '())
+        (else
+         (cons
+          (string-join (reverse directory-list) "/" 'infix)
+          (compute-directory-dependency (cdr directory-list))))))
+
+(define (compute-dependent-directories directory-list)
+  "Compute the dependecy list for each directory list provided.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+DIRECTORY-LIST <<list> of <lists> of <strings>>: A list with each member-list
+representing one original directory string, and each member thereof
+representing one directory level of that original string.
+
+Returns
+=======
+
+A <<list> of <lists> of <strings>>, with each member-list representing one
+original directory string, with each member thereof representing one
+directory level of the original string, with all dependent levels prepended
+to it, in order from shallowest to deepest level.
+
+Impurities
+==========
+None."
+  (map (lambda (x)
+         (reverse
+          (compute-directory-dependency x)))
+       directory-list))
+
+(define (generate-list-of-needed-directories directories)
+  "Generate a list of directories needed to exist for the given directories
+to exist. Can be fed to mkdir.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+DIRECTORIES <<list> of <strings>>: Each directory string in question, in a
+single list.
+
+
+Returns
+=======
+
+A <<list> of <strings>> representing all of the original directory strings,
+with each member representing one directory level of the original list with
+all dependent levels prepended to it, in ascending order, with all duplicates
+removed.
+
+
+Impurities
+==========
+None."
+  (let ((directory-list (compute-directory-list directories)))
+    (delete-duplicates
+     (flatten-list
+      (compute-dependent-directories directory-list)))))
+
+(define (flatten-list list-to-flatten)
+  "Take a nested list and flatten it to one level.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+LIST-TO-FLATTEN <list>: The original list.
+
+Returns
+=======
+
+A <list> with only one level, preserving the order of the arguments.
+
+
+Impurities
+==========
+None."
+  (cond ((null? list-to-flatten)
+         '())
+        ((pair? list-to-flatten)
+         (append (flatten-list (car list-to-flatten))
+                 (flatten-list (cdr list-to-flatten))))
+        (else
+         (list list-to-flatten))))
