@@ -71,7 +71,7 @@ CLEANFILES =					\
 ################################################################################
 # Define Inputs
 
-# ## Define Guile files
+## Define Guile files
 GUILESOURCES = $(builddir)/cdr255/combinators.scm \
 	       $(builddir)/cdr255/gamelib.scm   \
 	       $(builddir)/cdr255/userlib.scm

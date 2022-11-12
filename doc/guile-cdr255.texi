@@ -119,7 +119,7 @@ through @command{git}.
 This module is specifically supposed to collect procedures useful for
 enabling scripting by a user.
 
-The functions here all deal with environment codeiables, reading and
+The functions here all deal with environment variables, reading and
 writing files, displaying pretty-printed output, and running other
 programs.
 
@@ -135,20 +135,20 @@ programs.
 @c *********************************************************************
 @node Environment Variables, Assignment List Tools, Userlib, Userlib
 @section Environment Variables
-These procedures all deal with environment codeiables, which are somewhat
+These procedures all deal with environment variables, which are somewhat
 of a nuisance to use in stock GNU Guile.
 
 @c *********************************************************************
-@deffn {Scheme Procedure} dereference-env @code{codeiable}
+@deffn {Scheme Procedure} dereference-env @code{variable}
 @ref{ACTION}.
 
-Look up the environment codeiable @code{codeiable} in the running
+Look up the environment variable @code{variable} in the running
 environment, and return that value as a string.
 
-@emph{Note:} The specified codeiable shouldn't be preceded by a sigil
+@emph{Note:} The specified variable shouldn't be preceded by a sigil
 (for instance, bash uses @code{$}) that denotes it as an environment
-codeiable. Just include the name of the codeiable itself@footnote{So, to
-dereference @code{$HOME}, use "HOME" as @code{codeiable}.}.
+variable. Just include the name of the variable itself@footnote{So, to
+dereference @code{$HOME}, use "HOME" as @code{variable}.}.
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -159,17 +159,17 @@ dereference @code{$HOME}, use "HOME" as @code{codeiable}.}.
 
 @c *********************************************************************
 @deffn {Scheme Procedure} dereference-env-in-assignment-list @
-       @code{codeiable} @code{assignment-list}
+       @code{variable} @code{assignment-list}
 @deffnx {Scheme Procedure} dereference-envs-in-assignment-list @
-        @code{list-of-codeiables} @code{assignment-list}
+        @code{list-of-variables} @code{assignment-list}
 @ref{ACTION}
 
 These procedures both operate on an assignment list, and dereference at
-least one codeiable in all the elements (codeiables @emph{and} values)
-therein. The @code{list-of-codeiables} is expected to be a flat list of
+least one variable in all the elements (variables @emph{and} values)
+therein. The @code{list-of-variables} is expected to be a flat list of
 strings. Each returns an assignment list with all occurences of the
-specified codeiable(s) replaced with their values (or removed if they are
-unset in the current environment).
+specified variable(s) replaced with their values (or removed if they
+are unset in the current environment).
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -185,12 +185,12 @@ unset in the current environment).
 @end deffn
 
 @c *********************************************************************
-@deffn {Scheme Procedure} dereference-env-in-string @code{codeiable} @
+@deffn {Scheme Procedure} dereference-env-in-string @code{variable} @
        @code{string-to-work-on}
 @ref{ACTION}
 
-Look up the environment codeiable @code{codeiable} (using
-@code{dereference-env}), and replace all occurences of that codeiable
+Look up the environment variable @code{variable} (using
+@code{dereference-env}), and replace all occurences of that variable
 inside of @code{string-to-work-on}, returning the modified string.
 
 @lisp
@@ -206,7 +206,7 @@ inside of @code{string-to-work-on}, returning the modified string.
 @ref{ACTION}
 
 Take an @code{assignment-list} and interpret it as a set of environment
-codeiables, setting them in the local environment.
+variables, setting them in the local environment.
 
 @lisp
 (use-modules (cdr255 userlib))
@@ -291,7 +291,7 @@ list made out of just the valid members.
 @ref{CALCULATION}
 
 This procedure takes a @code{substring} and removes it across every
-member of an @code{assignment-list} (both codeiable and value members,
+member of an @code{assignment-list} (both variable and value members,
 included). It then returns the new assignment list, with all instances
 of the @code{substring} removed.
 
@@ -326,9 +326,9 @@ subset of alist with a few very strict limitations:
 
 @item There can only be two members per association.
 @item Both members @emph{must} be strings.
-@item The key/car/first member is the codeiable member.
-@item The codeiable member cannot have a space in it.
-@item The codeiable member cannot start with "export".
+@item The key/car/first member is the variable member.
+@item The variable member cannot have a space in it.
+@item The variable member cannot start with "export".
 @item The value/cadr/second member is the value member.
 
 @end enumerate
