@@ -41,7 +41,12 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             generate-value-section
             generate-help-string
             generate-deps-string
-            generate-deps-lines))
+            generate-deps-lines
+            flatten-list
+            generate-list-of-needed-directories
+            compute-dependent-directories
+            compute-directory-dependency
+            compute-directory-list))
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
