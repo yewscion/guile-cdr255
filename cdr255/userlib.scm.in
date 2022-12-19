@@ -1036,3 +1036,28 @@ None."
                  (flatten-list (cdr list-to-flatten))))
         (else
          (list list-to-flatten))))
+
+(define (shell-output-to-string command)
+  "Run the COMMAND specified, capturing the output as a string.
+
+This is an ACTION.
+
+Arguments
+=========
+
+COMMAND <string>: The command meant to be run in the shell.
+
+Returns
+=======
+
+A <string> representing the output of COMMAND, without leading or trailing
+whitespace.
+
+Impurities
+==========
+Relies on System State, Executes Arbitrary Commands."
+
+  (let* ((port (open-input-pipe command))
+         (str (get-string-all port)))
+    (close-pipe port)
+    (string-trim-both str)))
