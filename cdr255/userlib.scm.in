@@ -48,7 +48,9 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             compute-dependent-directories
             compute-directory-dependency
             compute-directory-list
-            shell-output-to-string))
+            shell-output-to-string
+            missing-commands
+            sort-two-string-alist))
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
@@ -504,7 +506,6 @@ None."
                    (map (lambda (y)
                           (replace-regexp-in-string regexp x y))
                         original-list)) replacement-list)))
-;;; Undocumented
 (define (join-lines list-of-lines)
   "Creates one long string with each member of LIST-OF-LINES on a seperate
 line.
@@ -1063,3 +1064,167 @@ Relies on System State, Executes Arbitrary Commands."
          (str (get-string-all port)))
     (close-pipe port)
     (string-trim-both str)))
+
+
+(define (sort-two-string-alist two-string-alist)
+  "Sort the given TWO-STRING-ALIST in ascending order according to each
+node's first string.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+TWO-STRING-ALIST <<list> of <lists> of <strings>>: An alist with two strings
+per node.
+
+Returns
+=======
+
+The same <<list> of <lists> of <strings>>, but in ascending order by first
+element.
+
+Impurities
+==========
+
+None."
+  (sort-list two-string-alist (lambda (x y)
+                                           (string< (car x) (car y)))))
+
+(define (build-needed-command-list two-string-alist)
+  "Build a standardized and sorted command-and-package string from the given
+TWO-STRING-ALIST.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+TWO-STRING-ALIST <<list> of <lists> of <strings>>: An alist with two strings
+per node. The first represents a command to check for, and the second
+represents the package that provides that command.
+
+Returns
+=======
+
+A <string> representing the commands listed in TWO-STRING-ALIST in a
+standardized, ascending-order format of:
+
+- bar (BarPackage)
+- foo (FooPackage)
+
+Impurities
+==========
+
+None."
+  (string-join (map (lambda (x)
+                      (string-append
+                       "- "
+                       (car x)
+                       " ("
+                       (cadr x)
+                       ")"))
+                    (sort-two-string-alist
+                     two-string-alist))
+               "\n"
+               'infix))
+
+(define (check-for-missing-commands two-string-alist path)
+  "Check for the commands from TWO-STRING-ALIST inside of PATH.
+
+This is an ACTION.
+
+Arguments
+=========
+
+TWO-STRING-ALIST <<list> of <lists> of <strings>>: An alist with two strings
+per node. The first represents a command to check for, and the second
+represents the package that provides that command.
+
+PATH <<list> of <strings>>: A representation of a POSIX-style PATH, with each
+string representing one directory in which to look for a program.
+
+Returns
+=======
+
+<true> if all commands in TWO-STRING-ALIST exist inside of PATH. <false>
+otherwise.
+
+Impurities
+==========
+
+Relies on state of underlying system."
+  (let ((commands (map car two-string-alist)))
+    (reduce (lambda (current last)
+              (and current last)) #t
+              (map (lambda (x)
+                     (search-path path x))
+                   commands))))
+
+(define (build-missing-command-string two-string-alist check-results)
+  "Check for the commands from TWO-STRING-ALIST inside of PATH.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+TWO-STRING-ALIST <<list> of <lists> of <strings>>: An alist with two strings
+per node. The first represents a command to check for, and the second
+represents the package that provides that command.
+
+CHECK-RESULTS <boolean>: Whether the check for all of the programs in
+TWO-STRING-ALIST was successful.
+
+Returns
+=======
+
+A <string> representing the whole of the required programs and in which
+packages they may be found, or (if all needed commands were found) an empty
+string.
+
+Impurities
+==========
+
+None."
+  (if (not check-results)
+      (string-append
+       "ERROR: One or more of the following programs was not found\n"
+       "       in Your $PATH. Please ensure they are all installed\n"
+       "       before using this program.\n\n"
+       (build-needed-command-list two-string-alist))
+      ""))
+
+(define (missing-commands command-and-package-alist)
+  "Check that all specified commands in COMMAND-AND-PACKAGE-ALIST are
+available.
+
+This is an ACTION.
+
+Arguments
+=========
+
+COMMAND-AND-PACKAGE-ALIST <<list> of <lists> of <strings>>: A two-string
+alist. The first represents a command to check for, and the second represents
+the package that provides that command.
+
+Returns
+=======
+
+<false> if all commands are available in user's PATH. A <string> representing
+the whole of the required programs and in which packages they may be found
+otherwise.
+
+Impurities
+==========
+Relies on state of underlying system."
+  (let* ((path (string-split (getenv "PATH") #\:))
+         (check-results (check-for-missing-commands
+                         command-and-package-alist
+                         path))
+         (result (build-missing-command-string
+                  command-and-package-alist
+                  check-results)))
+    (if (string= "" result)
+        #f
+        result)))
