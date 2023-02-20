@@ -1228,3 +1228,46 @@ Relies on state of underlying system."
     (if (string= "" result)
         #f
         result)))
+
+(define (get-or-create-configuration-file file-path-with-HOME defaults)
+  "Get the contents of the file at FILE-PATH-WITH-HOME. If it doesn't exist
+yet, create it using DEFAULTS and then get the contents.
+
+This is an ACTION.
+
+Arguments
+=========
+
+FILE-PATH-WITH-HOME <string>: Where the configuration file is located. Can
+make use of the HOME environment variable.
+
+DEFAULTS <string>: The defaults to dump into the configuration file when it
+does not exist.
+
+Returns
+=======
+
+The contents of the file at FILE-PATH-WITH-HOME, as a <string>. If the
+configuration file was just created, an empty <string>.
+
+Impurities
+==========
+
+Relies on the state of the underlying system."
+  (let ((file
+         (dereference-env-in-string
+          "HOME"
+          file-path-with-HOME)))
+    (if (not (file-exists? file))
+        (begin
+          (dump-string-to-file
+           file
+           defaults)
+          (display
+           (string-append
+            "Created default configuration file:\n"
+            file
+            "\n\nEdit that for Your needs, then run this program again."))
+          "")
+        (get-file-as-string
+         file))))
