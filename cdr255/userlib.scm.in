@@ -51,7 +51,7 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             shell-output-to-string
             missing-commands
             sort-two-string-alist
-            get-or-create-config-file))
+            get-or-create-configuration-file))
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
