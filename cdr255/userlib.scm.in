@@ -50,7 +50,8 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             compute-directory-list
             shell-output-to-string
             missing-commands
-            sort-two-string-alist))
+            sort-two-string-alist
+            get-or-create-config-file))
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
