@@ -13,6 +13,7 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
   #:use-module (ice-9 string-fun)
   #:use-module (ice-9 regex)
   #:use-module (ice-9 popen)
+  #:use-module (srfi srfi-1)
   #:export (add-section-to-filename
             apply-recursive-regexp-replacement
             assignment-string->assignment-list
