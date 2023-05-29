@@ -52,7 +52,10 @@ Documentation: @PACKAGE_DOCS_COMMAND@ @PACKAGE_NAME@
             shell-output-to-string
             missing-commands
             sort-two-string-alist
-            get-or-create-configuration-file))
+            get-or-create-configuration-file
+            sanitize-string
+            maybe-convert
+            maybe-convert-string-to-list))
 
 (define (dereference-env variable)
   "Return the value of the variable in the environment, or an empty string.
@@ -1273,3 +1276,96 @@ Relies on the state of the underlying system."
           "")
         (get-file-as-string
          file))))
+
+(define (sanitize-string str underscore-list dash-list downcase?)
+  "Cleans a string up, removing characters that may be undesirable or
+problematic and replacing them with underscores or dashes. Can also
+downcase the string if needed.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+STRING <string>: The string to be cleaned up, in its unaltered state.
+
+UNDERSCORE-LIST <string> OR <<list> of <chars>>: What characters should be
+replaced with underscores.
+
+DASH-LIST <string> OR <<list> of <chars>>: What characters should be
+replaced with dashes.
+
+DOWNCASE? <boolean>: Should we downcase the string?
+
+Returns
+=======
+
+A <string> that has been transformed by replacing characters with their
+alternatives.
+
+Impurities
+==========
+
+None.
+"
+  (let ((str (if downcase? (string-downcase str) str))
+        (underscore-list (maybe-convert-string-to-list underscore-list))
+        (dash-list (maybe-convert-string-to-list dash-list)))
+    (string-map (lambda (x) (cond ((member x underscore-list) #\_)
+                                  ((member x dash-list) #\-)
+                                  (else x))) str)))
+
+(define (maybe-convert predicate converter)
+  "Creates a monadic procedure that checks its argument with PREDICATE,
+applying CONVERTER if PREDICATE is <true>.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+PREDICATE <predicate>: A procedure that will return <true> if conversion
+is needed.
+
+CONVERTER <procedure>: A procedure that will convert its argument to the
+correct type.
+
+Returns
+=======
+
+A monadic procedure that will either convert a specific type of symbol to
+another type, or act like identity.
+
+Impurities
+==========
+
+None.
+"
+  (lambda (x)
+    (if (predicate x)
+        (converter x)
+        x)))
+
+(define (maybe-convert-string-to-list possible-string)
+  "If POSSIBLE-STRING is a <string>, convert it to a <<list> of <chars>>.
+Otherwise, return it unaltered.
+
+This is a CALCULATION.
+
+Arguments
+=========
+
+POSSIBLE-STRING <string> OR <symbol>: The symbol to check the type of, and
+convert if needed.
+
+Returns
+=======
+
+Either the unaltered object, or a <<list> of <chars>>
+
+Impurities
+==========
+
+None.
+"
+  (apply (maybe-convert string? string->list) (list possible-string)))
