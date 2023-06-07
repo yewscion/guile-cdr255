@@ -292,5 +292,39 @@ None."
                modulo)))
       'nil)))
 
+;;;;
 
+(define (create-board x y)
+  (make-list x
+             (make-list y 0)))
 
+(define (print-board board)
+  (map (lambda (x) (map display x) (newline)) board))
+
+(define (store-in-board board x y item)
+  (map new-item-for-board
+       board))
+(define (new-item-for-board board x y item)
+  (cond ((= (length board) 1)
+         (if (= x 0)
+             (replace-nth-in-list y (car board) item)
+             board))
+        ((= x 0)
+         (cons (replace-nth-in-list y (car board) item)
+               (new-item-for-board (cdr board) (- x 1) y item)))
+        (else
+         (cons (car board)
+               (new-item-for-board (cdr board) (- x 1) y item)))))
+
+(define (replace-nth-in-list nth lst item)
+  (cond ((= (length lst) 1)
+         (if (= nth 0)
+             (list item)
+             lst))
+        ((= nth 0)
+         (cons item
+               (replace-nth-in-list (- nth 1) (cdr lst) item)))
+        (else
+         (cons (car lst)
+               (replace-nth-in-list (- nth 1) (cdr lst) item)))))
+         
